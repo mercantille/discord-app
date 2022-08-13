@@ -13,6 +13,9 @@ import {
   CHALLENGE_COMMAND,
   TEST_COMMAND,
   HasGuildCommands,
+  PAY_COMMAND,
+  InstallGuildCommand,
+  UpdateGuildCommand,
 } from './commands.js';
 
 // Create an express app
@@ -30,6 +33,7 @@ const activeGames = {};
  */
 app.post('/interactions', async function (req, res) {
   // Interaction type and data
+  console.log(req.body)
   const { type, id, data } = req.body;
 
   /**
@@ -57,6 +61,18 @@ app.post('/interactions', async function (req, res) {
         },
       });
     }
+    
+    if (name === 'pay') {
+      const userId = req.body.member.user.id;
+      const toUser = req.body.data.options[0].value
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `<@${userId}> paid <@${toUser}> 💸`
+        }
+      })
+    }
+
     // "challenge" guild command
     if (name === 'challenge' && id) {
       const userId = req.body.member.user.id;
@@ -181,6 +197,8 @@ app.listen(PORT, () => {
   // Check if guild commands from commands.json are installed (if not, install them)
   HasGuildCommands(process.env.APP_ID, process.env.GUILD_ID, [
     TEST_COMMAND,
+    PAY_COMMAND,
     CHALLENGE_COMMAND,
   ]);
+  UpdateGuildCommand(process.env.APP_ID, process.env.GUILD_ID, PAY_COMMAND)
 });

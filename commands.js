@@ -43,6 +43,46 @@ export async function InstallGuildCommand(appId, guildId, command) {
   }
 }
 
+export async function UpdateGuildCommand(appId, guildId, command) {
+  const endpoint = `applications/${appId}/guilds/${guildId}/commands`;
+  // Retrieve existing commands
+  
+  let commandId
+  try {
+    const res = await DiscordRequest(endpoint, { method: 'GET' });
+    const data = await res.json();
+
+    if (data) {
+      const installedCommands = data.map((c) => {
+        return {
+        name: c['name'],
+        id: c['id']
+      }});
+      // This is just matching on the name, so it's not good for updates
+      installedCommands.forEach(c => {
+        if (c.name === command['name']) {
+          commandId = c['id']
+        }
+      })
+    }
+  } catch (err) {
+    console.error(err);
+  }
+
+  if (!commandId) {
+    console.log(`command ${command['name']} not found on the server`)
+  }
+
+  // update with command id
+  const updateEndpoint = `applications/${appId}/guilds/${guildId}/commands/${commandId}`;
+  try {
+    await DiscordRequest(updateEndpoint, { method: 'PATCH', body: command });
+  } catch (err) {
+    console.error(err);
+  }
+
+}
+
 // Get the game choices from game.js
 function createCommandChoices() {
   const choices = getRPSChoices();
@@ -64,6 +104,20 @@ export const TEST_COMMAND = {
   description: 'Basic guild command',
   type: 1,
 };
+
+export const PAY_COMMAND = {
+  name: 'pay',
+  description: 'Pay someone for a job',
+  options: [
+    {
+      type: 9,
+      name: 'touser',
+      description: 'User receiving the payment',
+      required: true
+    }
+  ],
+  type: 1
+}
 
 // Command containing options
 export const CHALLENGE_COMMAND = {
