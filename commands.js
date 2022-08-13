@@ -49,6 +49,8 @@ export async function UpdateGuildCommand(appId, guildId, command) {
   
   let commandId
   try {
+    console.log(`Checking if "${command['name']}" is installed`);
+
     const res = await DiscordRequest(endpoint, { method: 'GET' });
     const data = await res.json();
 
@@ -71,11 +73,13 @@ export async function UpdateGuildCommand(appId, guildId, command) {
 
   if (!commandId) {
     console.log(`command ${command['name']} not found on the server`)
+    return
   }
 
   // update with command id
   const updateEndpoint = `applications/${appId}/guilds/${guildId}/commands/${commandId}`;
   try {
+    console.log(`Updating "${command['name']}"`);
     await DiscordRequest(updateEndpoint, { method: 'PATCH', body: command });
   } catch (err) {
     console.error(err);
@@ -113,6 +117,12 @@ export const PAY_COMMAND = {
       type: 9,
       name: 'touser',
       description: 'User receiving the payment',
+      required: true
+    },
+    {
+      type: 10,
+      name: 'amount',
+      description: 'Amount of payment',
       required: true
     }
   ],

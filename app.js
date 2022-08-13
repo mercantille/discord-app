@@ -65,10 +65,11 @@ app.post('/interactions', async function (req, res) {
     if (name === 'pay') {
       const userId = req.body.member.user.id;
       const toUser = req.body.data.options[0].value
+      const amount = req.body.data.options[1].value
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `<@${userId}> paid <@${toUser}> 💸`
+          content: `<@${userId}> paid ETH${amount} to <@${toUser}> 💸`
         }
       })
     }
