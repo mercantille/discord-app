@@ -66,6 +66,12 @@ app.post('/interactions', async function (req, res) {
       const userId = req.body.member.user.id;
       const toUser = req.body.data.options[0].value
       const amount = req.body.data.options[1].value
+
+      console.log('To user: %s', JSON.stringify(toUser))
+
+      // TODO: retrieve Discord users info
+      // TODO: construct message for backend
+      // TODO: call backend to store the event 
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
