@@ -18,19 +18,23 @@ export const reportPayment = async (fromUser, toUser, amount) => {
         context: 'for being a good person!'
       }
     
+    console.log('Sending payload:')
+    console.log(payload)
     await storeActionInTheFeed(payload)
 }
 
 const storeActionInTheFeed = async (action) => {
     const endpoint = 'https://api.mercantille.xyz/api/v1/feed'
     
-    await fetch(endpoint, {
+    const resp = await fetch(endpoint, {
         headers: {
-          Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
           'Content-Type': 'application/json; charset=UTF-8',
           'User-Agent': 'DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)',
         },
         method: 'POST',
-        body: action
+        body: JSON.stringify(action)
       })
+    if (!resp.ok) {
+        console.error('Received error from server: %d', resp.status)
+    }
 }
