@@ -66,21 +66,22 @@ app.post('/interactions', async function (req, res) {
       const fromUser = req.body.member.user;
       const toUserId = req.body.data.options[0].value
       const amount = req.body.data.options[1].value
-      let reason
+      let context
       if (req.body.data.options[2]) {
-        reason = req.body.data.options[2].value
+        context = req.body.data.options[2].value
       }
+      const reason = context ? `for ${context}` : 'without reason'
 
       console.log('Retrieving recipient data')
       const toUser = await getUserById(toUserId)
       console.log('To user: %s', JSON.stringify(toUser))
 
-      await reportPayment(fromUser, toUser, amount, reason)
+      await reportPayment(fromUser, toUser, amount, context)
 
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `💸 <@${fromUser.id}> paid ETH ${amount} to <@${toUserId}> for ${reason} 💸`
+          content: `💸 <@${fromUser.id}> paid ETH ${amount} to <@${toUserId}> ${reason} 💸`
         }
       })
     }
