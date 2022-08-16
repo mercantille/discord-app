@@ -48,3 +48,8 @@ export function getRandomEmoji() {
 export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export async function getUserById(id) {
+  const response = await DiscordRequest(`users/${id}`, { method: 'GET' })
+  return response.json()
+}

@@ -7,7 +7,7 @@ import {
   MessageComponentTypes,
   ButtonStyleTypes,
 } from 'discord-interactions';
-import { VerifyDiscordRequest, getRandomEmoji, DiscordRequest } from './utils.js';
+import { VerifyDiscordRequest, getRandomEmoji, DiscordRequest, getUserById } from './utils.js';
 import { getShuffledOptions, getResult } from './game.js';
 import {
   CHALLENGE_COMMAND,
@@ -63,10 +63,12 @@ app.post('/interactions', async function (req, res) {
     }
     
     if (name === 'pay') {
-      const userId = req.body.member.user.id;
-      const toUser = req.body.data.options[0].value
+      const fromUser = req.body.member.user;
+      const toUserId = req.body.data.options[0].value
       const amount = req.body.data.options[1].value
 
+      console.log('Retrieving recipient data')
+      const toUser = await getUserById(toUserId)
       console.log('To user: %s', JSON.stringify(toUser))
 
       // TODO: retrieve Discord users info
@@ -75,7 +77,7 @@ app.post('/interactions', async function (req, res) {
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `<@${userId}> paid ETH${amount} to <@${toUser}> 💸`
+          content: `<@${fromUser.id}> paid ETH${amount} to <@${toUserId}> 💸`
         }
       })
     }
