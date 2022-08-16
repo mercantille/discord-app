@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-export const reportPayment = async (fromUser, toUser, amount) => {
+export const reportPayment = async (fromUser, toUser, amount, reason) => {
     const payload = {
         action: '/pay',
         fromUser: {
@@ -15,7 +15,7 @@ export const reportPayment = async (fromUser, toUser, amount) => {
           coin: 'ETH',
           value: amount
         },
-        context: 'for being a good person!'
+        context: reason ?? ''
       }
     
     console.log('Sending payload:')

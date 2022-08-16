@@ -66,17 +66,18 @@ app.post('/interactions', async function (req, res) {
       const fromUser = req.body.member.user;
       const toUserId = req.body.data.options[0].value
       const amount = req.body.data.options[1].value
+      const reason = req.body.data.options[2].value
 
       console.log('Retrieving recipient data')
       const toUser = await getUserById(toUserId)
       console.log('To user: %s', JSON.stringify(toUser))
 
-      await reportPayment(fromUser, toUser, amount)
+      await reportPayment(fromUser, toUser, amount, reason)
 
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `<@${fromUser.id}> paid ETH ${amount} to <@${toUserId}> 💸`
+          content: `💸 <@${fromUser.id}> paid ETH ${amount} to <@${toUserId}> for ${reason} 💸`
         }
       })
     }

@@ -124,6 +124,12 @@ export const PAY_COMMAND = {
       name: 'amount',
       description: 'Amount of payment',
       required: true
+    },
+    {
+      type: 3,
+      name: 'for',
+      description: 'Reason for payment',
+      required: false
     }
   ],
   type: 1
