@@ -66,7 +66,10 @@ app.post('/interactions', async function (req, res) {
       const fromUser = req.body.member.user;
       const toUserId = req.body.data.options[0].value
       const amount = req.body.data.options[1].value
-      const reason = req.body.data.options[2].value
+      let reason
+      if (req.body.data.options[2]) {
+        reason = req.body.data.options[2].value
+      }
 
       console.log('Retrieving recipient data')
       const toUser = await getUserById(toUserId)
