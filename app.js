@@ -14,9 +14,9 @@ import {
   TEST_COMMAND,
   HasGuildCommands,
   PAY_COMMAND,
-  InstallGuildCommand,
   UpdateGuildCommand,
 } from './commands.js';
+import { reportPayment } from './bounties.js';
 
 // Create an express app
 const app = express();
@@ -71,13 +71,12 @@ app.post('/interactions', async function (req, res) {
       const toUser = await getUserById(toUserId)
       console.log('To user: %s', JSON.stringify(toUser))
 
-      // TODO: retrieve Discord users info
-      // TODO: construct message for backend
-      // TODO: call backend to store the event 
+      await reportPayment(fromUser, toUser, amount)
+
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `<@${fromUser.id}> paid ETH${amount} to <@${toUserId}> 💸`
+          content: `<@${fromUser.id}> paid ETH ${amount} to <@${toUserId}> 💸`
         }
       })
     }
