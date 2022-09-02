@@ -70,7 +70,7 @@ app.post('/interactions', async function (req, res) {
       if (req.body.data.options[2]) {
         context = req.body.data.options[2].value
       }
-      const reason = context ? `for ${context}` : 'without reason'
+      const reason = context ? `for ${context}` : 'for no reason'
 
       console.log('Retrieving recipient data')
       const toUser = await getUserById(toUserId)
