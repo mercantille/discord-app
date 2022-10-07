@@ -9,8 +9,12 @@ export async function HasGuildCommands(appId, guildId, commands) {
 
 // Checks for a command
 async function HasGuildCommand(appId, guildId, command) {
-  // API endpoint to get and post guild commands
-  const endpoint = `applications/${appId}/guilds/${guildId}/commands`;
+  let endpoint 
+  if (guildId) {
+    endpoint = `applications/${appId}/guilds/${guildId}/commands`
+  } else {
+    endpoint = `applications/${appId}/commands`
+  }
 
   try {
     const res = await DiscordRequest(endpoint, { method: 'GET' });
@@ -33,8 +37,12 @@ async function HasGuildCommand(appId, guildId, command) {
 
 // Installs a command
 export async function InstallGuildCommand(appId, guildId, command) {
-  // API endpoint to get and post guild commands
-  const endpoint = `applications/${appId}/guilds/${guildId}/commands`;
+  let endpoint 
+  if (guildId) {
+    endpoint = `applications/${appId}/guilds/${guildId}/commands`
+  } else {
+    endpoint = `applications/${appId}/commands`
+  }
   // install command
   try {
     await DiscordRequest(endpoint, { method: 'POST', body: command });
@@ -44,7 +52,13 @@ export async function InstallGuildCommand(appId, guildId, command) {
 }
 
 export async function UpdateGuildCommand(appId, guildId, command) {
-  const endpoint = `applications/${appId}/guilds/${guildId}/commands`;
+  let endpoint 
+  if (guildId) {
+    endpoint = `applications/${appId}/guilds/${guildId}/commands`
+  } else {
+    endpoint = `applications/${appId}/commands`
+  }
+
   // Retrieve existing commands
   
   let commandId
@@ -77,7 +91,13 @@ export async function UpdateGuildCommand(appId, guildId, command) {
   }
 
   // update with command id
-  const updateEndpoint = `applications/${appId}/guilds/${guildId}/commands/${commandId}`;
+  let updateEndpoint
+  if (guildId) {
+    updateEndpoint = `applications/${appId}/guilds/${guildId}/commands/${commandId}`
+  } else {
+    updateEndpoint = `applications/${appId}/commands/${commandId}`
+  }
+
   try {
     console.log(`Updating "${command['name']}"`);
     await DiscordRequest(updateEndpoint, { method: 'PATCH', body: command });
