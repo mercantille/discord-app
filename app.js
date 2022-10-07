@@ -208,10 +208,10 @@ app.listen(PORT, () => {
   console.log('Listening on port', PORT);
 
   // Check if guild commands from commands.json are installed (if not, install them)
-  HasGuildCommands(process.env.APP_ID, process.env.GUILD_ID, [
+  HasGuildCommands(process.env.APP_ID, undefined, [
     TEST_COMMAND,
     PAY_COMMAND,
     CHALLENGE_COMMAND,
   ]);
-  UpdateGuildCommand(process.env.APP_ID, process.env.GUILD_ID, PAY_COMMAND)
+  UpdateGuildCommand(process.env.APP_ID, undefined, PAY_COMMAND)
 });
