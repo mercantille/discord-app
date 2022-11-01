@@ -1,22 +1,28 @@
-import 'dotenv/config';
-import express from 'express';
+import "dotenv/config";
+import express from "express";
 import {
   InteractionType,
   InteractionResponseType,
   InteractionResponseFlags,
   MessageComponentTypes,
   ButtonStyleTypes,
-} from 'discord-interactions';
-import { VerifyDiscordRequest, getRandomEmoji, DiscordRequest, getUserById } from './utils.js';
-import { getShuffledOptions, getResult } from './game.js';
+} from "discord-interactions";
+import {
+  VerifyDiscordRequest,
+  getRandomEmoji,
+  DiscordRequest,
+  getUserById,
+} from "./utils.js";
+import { getShuffledOptions, getResult } from "./game.js";
 import {
   CHALLENGE_COMMAND,
   TEST_COMMAND,
   HasGuildCommands,
   PAY_COMMAND,
+  GIVEREP_COMMAND,
   UpdateGuildCommand,
-} from './commands.js';
-import { reportPayment } from './bounties.js';
+} from "./commands.js";
+import { reportPayment, reportRepTransfer } from "./bounties.js";
 
 // Create an express app
 const app = express();
@@ -31,9 +37,9 @@ const activeGames = {};
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
  */
-app.post('/interactions', async function (req, res) {
+app.post("/interactions", async function (req, res) {
   // Interaction type and data
-  console.log(req.body)
+  console.log(req.body);
   const { type, id, data } = req.body;
 
   /**
@@ -51,43 +57,67 @@ app.post('/interactions', async function (req, res) {
     const { name } = data;
 
     // "test" guild command
-    if (name === 'test') {
+    if (name === "test") {
       // Send a message into the channel where command was triggered from
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           // Fetches a random emoji to send from a helper function
-          content: 'hello world ' + getRandomEmoji(),
+          content: "hello world " + getRandomEmoji(),
         },
       });
     }
-    
-    if (name === 'pay') {
+
+    if (name === "pay") {
       const fromUser = req.body.member.user;
-      const toUserId = req.body.data.options[0].value
-      const amount = req.body.data.options[1].value
-      let context
+      const toUserId = req.body.data.options[0].value;
+      const amount = req.body.data.options[1].value;
+      let context;
       if (req.body.data.options[2]) {
-        context = req.body.data.options[2].value
+        context = req.body.data.options[2].value;
       }
-      const reason = context ? context : 'no reason'
+      const reason = context ? context : "no reason";
 
-      console.log('Retrieving recipient data')
-      const toUser = await getUserById(toUserId)
-      console.log('To user: %s', JSON.stringify(toUser))
+      console.log("Retrieving recipient data");
+      const toUser = await getUserById(toUserId);
+      console.log("To user: %s", JSON.stringify(toUser));
 
-      await reportPayment(fromUser, toUser, amount, reason)
+      await reportPayment(fromUser, toUser, amount, reason);
 
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `💸 <@${fromUser.id}> paid ETH ${amount} to <@${toUserId}> for ${reason} 💸`
-        }
-      })
+          content: `💸 <@${fromUser.id}> paid ETH ${amount} to <@${toUserId}> for ${reason} 💸`,
+        },
+      });
+    }
+
+    if (name === "giverep") {
+      const fromUser = req.body.member.user;
+      const toUserId = req.body.data.options[0].value;
+      const amount = req.body.data.options[1].value;
+      let context;
+      if (req.body.data.options[2]) {
+        context = req.body.data.options[2].value;
+      }
+      const reason = context ? context : "no reason";
+
+      console.log("Retrieving recipient data");
+      const toUser = await getUserById(toUserId);
+      console.log("To user: %s", JSON.stringify(toUser));
+
+      await reportRepTransfer(fromUser, toUser, amount, reason);
+
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `🚀 <@${fromUser.id}> sent ${amount}ᐩ to <@${toUserId}> for ${reason} 🚀`,
+        },
+      });
     }
 
     // "challenge" guild command
-    if (name === 'challenge' && id) {
+    if (name === "challenge" && id) {
       const userId = req.body.member.user.id;
       // User's object choice
       const objectName = req.body.data.options[0].value;
@@ -111,7 +141,7 @@ app.post('/interactions', async function (req, res) {
                   type: MessageComponentTypes.BUTTON,
                   // Append the game ID to use later on
                   custom_id: `accept_button_${req.body.id}`,
-                  label: 'Accept',
+                  label: "Accept",
                   style: ButtonStyleTypes.PRIMARY,
                 },
               ],
@@ -130,9 +160,9 @@ app.post('/interactions', async function (req, res) {
     // custom_id set in payload when sending message component
     const componentId = data.custom_id;
 
-    if (componentId.startsWith('accept_button_')) {
+    if (componentId.startsWith("accept_button_")) {
       // get the associated game ID
-      const gameId = componentId.replace('accept_button_', '');
+      const gameId = componentId.replace("accept_button_", "");
       // Delete message with token in request body
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
       try {
@@ -140,7 +170,7 @@ app.post('/interactions', async function (req, res) {
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
             // Fetches a random emoji to send from a helper function
-            content: 'What is your object of choice?',
+            content: "What is your object of choice?",
             // Indicates it'll be an ephemeral message
             flags: InteractionResponseFlags.EPHEMERAL,
             components: [
@@ -159,13 +189,13 @@ app.post('/interactions', async function (req, res) {
           },
         });
         // Delete previous message
-        await DiscordRequest(endpoint, { method: 'DELETE' });
+        await DiscordRequest(endpoint, { method: "DELETE" });
       } catch (err) {
-        console.error('Error sending message:', err);
+        console.error("Error sending message:", err);
       }
-    } else if (componentId.startsWith('select_choice_')) {
+    } else if (componentId.startsWith("select_choice_")) {
       // get the associated game ID
-      const gameId = componentId.replace('select_choice_', '');
+      const gameId = componentId.replace("select_choice_", "");
 
       if (activeGames[gameId]) {
         // Get user ID and object choice for responding user
@@ -190,14 +220,14 @@ app.post('/interactions', async function (req, res) {
           });
           // Update ephemeral message
           await DiscordRequest(endpoint, {
-            method: 'PATCH',
+            method: "PATCH",
             body: {
-              content: 'Nice choice ' + getRandomEmoji(),
+              content: "Nice choice " + getRandomEmoji(),
               components: [],
             },
           });
         } catch (err) {
-          console.error('Error sending message:', err);
+          console.error("Error sending message:", err);
         }
       }
     }
@@ -205,13 +235,14 @@ app.post('/interactions', async function (req, res) {
 });
 
 app.listen(PORT, () => {
-  console.log('Listening on port', PORT);
+  console.log("Listening on port", PORT);
 
   // Check if guild commands from commands.json are installed (if not, install them)
   HasGuildCommands(process.env.APP_ID, undefined, [
     TEST_COMMAND,
     PAY_COMMAND,
     CHALLENGE_COMMAND,
+    GIVEREP_COMMAND,
   ]);
-  UpdateGuildCommand(process.env.APP_ID, undefined, PAY_COMMAND)
+  UpdateGuildCommand(process.env.APP_ID, undefined, PAY_COMMAND);
 });
