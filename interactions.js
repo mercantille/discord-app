@@ -1,4 +1,7 @@
 import {
+    InteractionResponseType,
+  } from "discord-interactions";  
+import {
     getRandomEmoji,
     getUserById,
 } from "./utils.js";
