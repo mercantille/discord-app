@@ -93,10 +93,25 @@ const handleCreateCommandCommand = async (payload) => {
     // TODO: validate params
     const commandName = payload.data.options[0].value;
     const bio = payload.data.options[1].value;
-    const isUniqueName = payload.data.options[2].value;
-    const isBioRequired = payload.data.options[3].value;
-    const sublects = payload.data.options[4].value;
-    const rewardOption = payload.data.options[5].value;
+    let isUniqueName;
+    if (payload.data.options[2]) {
+        isUniqueName = payload.data.options[2].value;
+    }
+
+    let isBioRequired
+    if (payload.data.options[3]) {
+        isBioRequired = payload.data.options[3].value;
+    }
+
+    let sublects
+    if (payload.data.options[4]) {
+        sublects = payload.data.options[4].value;
+    }
+
+    let rewardOption
+    if (payload.data.options[5]) {
+        rewardOption = payload.data.options[5].value;
+    }
 
     const guildId = payload['guild_id'];
     //TODO:  call backend to persist command
