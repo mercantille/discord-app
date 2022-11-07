@@ -47,7 +47,7 @@ app.post("/interactions", async function (req, res) {
     const { name } = data;
 
     try {
-      const responsePayload = handleApplicationCommand(name, req.body)
+      const responsePayload = await handleApplicationCommand(name, req.body)
       if (responsePayload) {
         return res.send(responsePayload)
       }
