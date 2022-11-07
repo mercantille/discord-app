@@ -6,7 +6,7 @@ import {
     getUserById,
 } from "./utils.js";
 import { reportPayment, reportRepTransfer } from "./bounties.js";
-import { HasGuildCommands } from "./commands/commands-def.js";
+import { HasGuildCommands, UpdateGuildCommand } from "./commands/commands-def.js";
 
 
 export const handleApplicationCommand = async (name, payload) => {
@@ -135,7 +135,7 @@ const handleCreateCommandCommand = async (payload) => {
             }
         ]
     };
-    await HasGuildCommands(process.env.APP_ID, guildId, [command]);
+    await UpdateGuildCommand(process.env.APP_ID, guildId, command);
 
     // return response for the creation
     return {
