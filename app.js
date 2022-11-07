@@ -246,3 +246,14 @@ app.listen(PORT, () => {
   ]);
   UpdateGuildCommand(process.env.APP_ID, undefined, PAY_COMMAND);
 });
+
+const intervalMs = 60 * 1000 // every 1 minute
+const timeoutObj = setInterval(() => {
+  console.log("I'm working!")
+  // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
+}, intervalMs)
+
+app.once('close', () => {
+  console.log("Closing!")
+  clearInterval(timeoutObj)
+})
