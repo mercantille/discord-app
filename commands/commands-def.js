@@ -181,6 +181,77 @@ export const GIVEREP_COMMAND = {
   type: 1,
 };
 
+export const CREATE_COMMAND = {
+  name: "command",
+  description: "Create custom command",
+  options: [
+    {
+      type: 3, // string,
+      name: "name",
+      description: "Command name",
+      required: true
+    },
+    {
+      type: 3, // string
+      name: "bio",
+      description: "Command description",
+      required: true
+    },
+    {
+      type: 5, // boolean
+      name: "uniquenamereq",
+      description: "Is unique event name required",
+      required: false
+    },
+    {
+      type: 5, // boolean
+      name: "bioreq",
+      description: "Is event bio required",
+      required: false
+    },
+    {
+      type: 3,
+      name: "sublects",
+      description: "Defines if multiple users can be command subjects",
+      choices: [
+        {
+        name: "single",
+        value: "single"
+        },
+        { 
+          name: "multiple",
+          value: "multiple"
+        }
+      ],
+      required: false
+    },
+    {
+      type: 3,
+      name: "rewardoption",
+      description: "Reward type for this command",
+      choices: [
+        {
+          name: "not_rewarded",
+          value: "not rewarded"
+        },
+        {
+          name: "fixed",
+          value: "fixed"
+        },
+        {
+          name: "dynamic",
+          value: "dynamic"
+        },
+        {
+          name: "per_name",
+          value: "per name"
+        }
+      ],
+      required: false
+    }
+  ]
+}
+
 // Command containing options
 export const CHALLENGE_COMMAND = {
   name: "challenge",

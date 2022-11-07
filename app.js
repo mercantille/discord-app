@@ -14,6 +14,7 @@ import {
   PAY_COMMAND,
   GIVEREP_COMMAND,
   UpdateGuildCommand,
+  CREATE_COMMAND,
 } from "./commands/commands-def.js";
 import { handleApplicationCommand } from "./interactions.js";
 
@@ -69,8 +70,10 @@ app.listen(PORT, () => {
     PAY_COMMAND,
     CHALLENGE_COMMAND,
     GIVEREP_COMMAND,
+    CREATE_COMMAND
   ]);
   UpdateGuildCommand(process.env.APP_ID, undefined, PAY_COMMAND);
+  UpdateGuildCommand(process.env.APP_ID, undefined, CREATE_COMMAND);
 });
 
 const intervalMs = 60 * 1000 // every 1 minute
