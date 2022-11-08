@@ -131,7 +131,8 @@ const handleCreateCommandCommand = async (payload) => {
             {
                 type: 10, // number
                 name: "Reward",
-                required: true
+                description: "Reward!",
+                required: false
             }
         ]
     };
