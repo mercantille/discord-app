@@ -124,13 +124,13 @@ const handleCreateCommandCommand = async (payload) => {
         options: [
             {
                 type: 3, // string
-                name: "uniqueName",
+                name: "uniquename",
                 description: "Unique name for sub event",
                 required: false
             },
             {
                 type: 10, // number
-                name: "Reward",
+                name: "reward",
                 description: "Reward!",
                 required: false
             }
