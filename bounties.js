@@ -2,20 +2,24 @@ import fetch from "node-fetch";
 
 export const reportPayment = async (fromUser, toUser, amount, reason) => {
   const payload = {
-    action: "/pay",
-    fromUser: {
-      id: fromUser.id,
-      name: fromUser.username,
-    },
-    toUser: {
-      id: toUser.id,
-      name: toUser.username,
-    },
-    amount: {
-      coin: "ETH",
-      value: amount,
-    },
-    context: reason ?? "",
+    // action: "/pay",
+    // fromUser: {
+    //   id: fromUser.id,
+    //   name: fromUser.username,
+    // },
+    // toUser: {
+    //   id: toUser.id,
+    //   name: toUser.username,
+    // },
+    // amount: {
+    //   coin: "ETH",
+    //   value: amount,
+    // },
+    organization_id: 1,
+    source_id: 1,
+    user_id: fromUser,
+    action_id: 2,
+    context: "sent " + amount + " ETH to " + toUser + reason,
   };
 
   console.log("Sending payload:");
@@ -44,7 +48,7 @@ export const reportRepTransfer = async (fromUser, toUser, amount, reason) => {
 };
 
 const storeActionInTheFeed = async (action) => {
-  const endpoint = "https://api.mercantille.xyz/api/v1/feed";
+  const endpoint = "https://api.mercantille.xyz/api/v1/event-history/create";
 
   const resp = await fetch(endpoint, {
     headers: {

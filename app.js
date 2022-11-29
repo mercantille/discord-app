@@ -1,12 +1,8 @@
 import "dotenv/config";
+import fetch from "node-fetch";
 import express from "express";
-import {
-  InteractionType,
-  InteractionResponseType,
-} from "discord-interactions";
-import {
-  VerifyDiscordRequest,
-} from "./utils.js";
+import { InteractionType, InteractionResponseType } from "discord-interactions";
+import { VerifyDiscordRequest } from "./utils.js";
 import {
   CHALLENGE_COMMAND,
   TEST_COMMAND,
@@ -48,16 +44,16 @@ app.post("/interactions", async function (req, res) {
     const { name } = data;
 
     try {
-      const responsePayload = await handleApplicationCommand(name, req.body)
+      const responsePayload = await handleApplicationCommand(name, req.body);
       if (responsePayload) {
-        return res.send(responsePayload)
+        return res.send(responsePayload);
       }
     } catch (error) {
-      console.error(error)
-      return res.status(500).send()
+      console.error(error);
+      return res.status(500).send();
     }
 
-    return res.status(400).send()
+    return res.status(400).send();
   }
 });
 
@@ -70,19 +66,38 @@ app.listen(PORT, () => {
     PAY_COMMAND,
     CHALLENGE_COMMAND,
     GIVEREP_COMMAND,
-    CREATE_COMMAND
+    CREATE_COMMAND,
   ]);
   UpdateGuildCommand(process.env.APP_ID, undefined, PAY_COMMAND);
   UpdateGuildCommand(process.env.APP_ID, undefined, CREATE_COMMAND);
 });
 
-const intervalMs = 60 * 1000 // every 1 minute
+async function messages() {
+  const response = await fetch(
+    "https://discord.com/api/v10/channels/971768024325570570/messages?limit=3",
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+        limit: 3,
+        Accept: "application/json",
+      },
+    }
+    // new URLSearchParams({ limit: 10 })
+  );
+  const data = await response.json();
+  console.log(await data);
+  return await data;
+}
+console.log(messages());
+const intervalMs = 10 * 1000; // every 1 minute
 const timeoutObj = setInterval(() => {
-  console.log("I'm working!")
   // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
-}, intervalMs)
+  const msg = messages();
+  // console.log(msg);
+}, intervalMs);
 
-app.once('close', () => {
-  console.log("Closing!")
-  clearInterval(timeoutObj)
-})
+app.once("close", () => {
+  console.log("Closing!");
+  clearInterval(timeoutObj);
+});
