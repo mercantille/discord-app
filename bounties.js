@@ -17,9 +17,9 @@ export const reportPayment = async (fromUser, toUser, amount, reason) => {
     // },
     organization_id: 1,
     source_id: 1,
-    user_id: fromUser,
+    user_id: 1,
     action_id: 2,
-    context: "sent " + amount + " ETH to " + toUser + reason,
+    context: "→ " + toUser.username + reason,
   };
 
   console.log("Sending payload:");
@@ -55,11 +55,12 @@ const storeActionInTheFeed = async (action) => {
       "Content-Type": "application/json; charset=UTF-8",
       "User-Agent":
         "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdfaWQiOiIxIiwidXNlcl9pZCI6MX0.2yoQYPPNTNHpS_b-cWHA0oK-GACkc7ovsGJZlVWfKcA`,
     },
     method: "POST",
     body: JSON.stringify(action),
   });
   if (!resp.ok) {
     console.error("Received error from server: %d", resp.status);
-  }
+  } else console.log(resp);
 };

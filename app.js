@@ -86,10 +86,10 @@ async function messages() {
     // new URLSearchParams({ limit: 10 })
   );
   const data = await response.json();
-  console.log(await data);
+  // console.log(await data);
   return await data;
 }
-console.log(messages());
+// console.log(messages());
 const intervalMs = 10 * 1000; // every 1 minute
 const timeoutObj = setInterval(() => {
   // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
