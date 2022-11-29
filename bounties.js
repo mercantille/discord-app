@@ -19,7 +19,7 @@ export const reportPayment = async (fromUser, toUser, amount, reason) => {
     source_id: 1,
     user_id: 1,
     action_id: 2,
-    context: "→ " + toUser.username + reason,
+    context: "→ " + toUser.username + " for " + reason,
   };
 
   console.log("Sending payload:");
