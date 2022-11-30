@@ -39,6 +39,7 @@ const handlePayCommand = async (payload) => {
   const fromUser = payload.member.user;
   const toUserId = payload.data.options[0].value;
   const amount = payload.data.options[1].value;
+  const guildID = payload.guild_id;
   let context;
   if (payload.data.options[2]) {
     context = payload.data.options[2].value;
@@ -49,7 +50,7 @@ const handlePayCommand = async (payload) => {
   const toUser = await getUserById(toUserId);
   console.log("To user: %s", JSON.stringify(toUser));
 
-  await reportPayment(fromUser, toUser, amount, reason);
+  await reportPayment(fromUser, toUser, amount, reason, guildID);
 
   return {
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,

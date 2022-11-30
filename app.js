@@ -89,12 +89,32 @@ async function messages() {
   // console.log(await data);
   return await data;
 }
+
+async function guilds() {
+  const response = await fetch(
+    "https://discord.com/api/v10//users/@me/guilds",
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+        limit: 3,
+        Accept: "application/json",
+      },
+    }
+    // new URLSearchParams({ limit: 10 })
+  );
+  const data = await response.json();
+  // console.log(await data);
+  return await data;
+}
 // console.log(messages());
 const intervalMs = 10 * 1000; // every 1 minute
 const timeoutObj = setInterval(() => {
   // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
   const msg = messages();
-  // console.log(msg);
+  const glds = guilds();
+  console.log(glds);
+  console.log(msg);
 }, intervalMs);
 
 app.once("close", () => {
