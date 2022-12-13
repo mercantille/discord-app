@@ -1,6 +1,12 @@
 import { InteractionResponseType } from "discord-interactions";
 import { getRandomEmoji, getUserById } from "./utils.js";
-import { reportPayment, reportRepTransfer } from "./bounties.js";
+import {
+  reportPayment,
+  reportRepTransfer,
+  getOrgId,
+  topUp,
+  getIdentityByID,
+} from "./bounties.js";
 import { HasGuildCommands } from "./commands/commands-def.js";
 
 export const handleApplicationCommand = async (name, payload) => {
@@ -37,6 +43,7 @@ const handleTestCommand = (_) => {
 
 const handlePayCommand = async (payload) => {
   const fromUser = payload.member.user;
+  const fromUserId = payload.member.id;
   const toUserId = payload.data.options[0].value;
   const amount = payload.data.options[1].value;
   const guildID = payload.guild_id;
@@ -49,6 +56,7 @@ const handlePayCommand = async (payload) => {
   console.log("Retrieving recipient data");
   const toUser = await getUserById(toUserId);
   console.log("To user: %s", JSON.stringify(toUser));
+  console.log("UserID: %s", JSON.stringify(toUserId));
 
   await reportPayment(fromUser, toUser, amount, reason, guildID);
 
@@ -62,8 +70,11 @@ const handlePayCommand = async (payload) => {
 
 const handleGiverepCommand = async (payload) => {
   const fromUser = payload.member.user;
+
+  const guildID = payload.guild_id;
   const toUserId = payload.data.options[0].value;
   const amount = payload.data.options[1].value;
+  const toUserName = payload.data.resolved.users[toUserId].username;
   let context;
   if (payload.data.options[2]) {
     context = payload.data.options[2].value;
@@ -72,17 +83,72 @@ const handleGiverepCommand = async (payload) => {
 
   console.log("Retrieving recipient data");
   const toUser = await getUserById(toUserId);
-  console.log("To user: %s", JSON.stringify(toUser));
+  const response = await getOrgId(guildID);
+  const orgID = response.sources[0].organization_id;
 
-  await reportRepTransfer(fromUser, toUser, amount, reason);
+  if (fromUser.id === toUserId)
+    return {
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: `You can't send reputation you yourself, <@${fromUser.id}>!`,
+      },
+    };
+  const negativeTopUpResp = await topUp(orgID, fromUser.id, -amount, 1);
+  console.log(negativeTopUpResp.status);
+  console.log(negativeTopUpResp.wallets);
+  console.log(negativeTopUpResp.error);
+  // const positiveTopUpResp = await topUp(orgID, toUserId, amount, 1);
 
-  return {
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      content: `🚀 <@${fromUser.id}> sent ${amount}ᐩ to <@${toUserId}> for ${reason}`,
-    },
-  };
+  if (!negativeTopUpResp.error) {
+    const positiveTopUpResp = await topUp(orgID, toUserId, amount, 1);
+    if (!negativeTopUpResp.error) {
+      console.log("fromUser.id");
+      console.log("fromUser.id");
+      console.log("fromUser.id");
+      console.log("fromUser.id");
+
+      console.log(fromUser.id);
+      const fromIdentity = await getIdentityByID(1, fromUser.id);
+      await reportRepTransfer(
+        orgID,
+        1,
+        1,
+        fromIdentity,
+        toUserName,
+        amount,
+        reason
+      );
+      if (!reportRepTransfer.error) {
+        return {
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `🚀 <@${fromUser.id}> sent ${amount}ᐩ to <@${toUserId}> for ${reason}`,
+          },
+        };
+      } else
+        return {
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `Something's up with storing this transaction in Feed, but it did go through to <@${toUserId}>'s wallet. Ping Mercantille team to let them know what's up`,
+          },
+        };
+    } else
+      return {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `Something's up with the <@${toUserId}>'s wallet!`,
+        },
+      };
+  } else
+    return {
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: `Not enough ᐩ in the <@${fromUser.id}>'s wallet!`,
+      },
+    };
 };
+
+// await reportRepTransfer(fromUser, toUser, amount, reason);
 
 const handleCreateCommandCommand = async (payload) => {
   // TODO: validate params

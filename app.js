@@ -72,14 +72,14 @@ app.listen(PORT, () => {
   UpdateGuildCommand(process.env.APP_ID, undefined, CREATE_COMMAND);
 });
 
-async function messages() {
+async function getMessagesPerChannel(channel, lastMessage) {
   const response = await fetch(
-    "https://discord.com/api/v10/channels/971768024325570570/messages?limit=3",
+    `https://discord.com/api/v10/channels/730806402351628301/messages?limit=3`,
     {
       method: "GET",
       headers: {
         Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
-        limit: 3,
+        after: lastMessage,
         Accept: "application/json",
       },
     }
@@ -90,7 +90,7 @@ async function messages() {
   return await data;
 }
 
-async function guilds() {
+async function getGuilds() {
   const response = await fetch(
     "https://discord.com/api/v10//users/@me/guilds",
     {
@@ -104,17 +104,31 @@ async function guilds() {
     // new URLSearchParams({ limit: 10 })
   );
   const data = await response.json();
-  // console.log(await data);
-  return await data;
+  // console.log(data);
+  return data;
 }
+
+// async function handleMessageHistory() {
+//   const guilds =
+// }
+
 // console.log(messages());
 const intervalMs = 10 * 1000; // every 1 minute
-const timeoutObj = setInterval(() => {
+const timeoutObj = setInterval(async () => {
   // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
-  const msg = messages();
-  const glds = guilds();
-  console.log(glds);
-  console.log(msg);
+  // const glds = await getGuilds();
+  const messages = await getMessagesPerChannel(
+    730806402351628301n,
+    1047445288702451723n
+  );
+  // console.log(messages);
+  // const channel = 730806402351628301n;
+  // console.log(
+  //   `https://discord.com/api/v10/channels/730806402351628301/messages?limit=3`
+  // );
+  // console.log(
+  //   `https://discord.com/api/v10/channels/${channel}/messages?limit=3`
+  // );
 }, intervalMs);
 
 app.once("close", () => {
