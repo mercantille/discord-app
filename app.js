@@ -12,7 +12,8 @@ import {
   UpdateGuildCommand,
   CREATE_COMMAND,
 } from "./commands/commands-def.js";
-import { handleApplicationCommand } from "./interactions.js";
+import { handleApplicationCommand  } from "./interactions.js";
+import {getIdentityByID, storeActionInTheFeed} from "./bounties.js";
 
 // Create an express app
 const app = express();
@@ -72,23 +73,154 @@ app.listen(PORT, () => {
   UpdateGuildCommand(process.env.APP_ID, undefined, CREATE_COMMAND);
 });
 
+
+async function getDiscordServers() {
+  const endpoint = "https://api.mercantille.xyz/api/v1/source/query";
+  const payload = {
+    names: ["Discord"]
+  };
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      "User-Agent":
+          "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+      Authorization: `Bearer ${process.env.BACKEND_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    console.error("Received error from server: %d", response.status);
+    console.log(response);
+  }
+  const data = await response.json();
+  return data.sources;
+}
+
+async function getChannelsPerServer(server) {
+  const endpoint = `https://discord.com/api/v10/guilds/${server}/channels`;
+
+  const response = await fetch(endpoint, {
+    method: "GET",
+    headers: {
+      Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+      Accept: "application/json",
+    },
+  });
+  if (!response.ok) {
+    console.error("Received error from server: %d", response.status);
+    console.log(response);
+  }
+  const data = await response.json();
+  return data;
+}
 async function getMessagesPerChannel(channel, lastMessage) {
-  const response = await fetch(
-    `https://discord.com/api/v10/channels/730806402351628301/messages?limit=3`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
-        after: lastMessage,
-        Accept: "application/json",
-      },
-    }
+  let response = null;
+  if (lastMessage && lastMessage !== undefined) {
+    console.log(lastMessage);
+    console.log("showing since last");
+     response = await fetch(
+        `https://discord.com/api/v10/channels/${channel}/messages`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+            Accept: "application/json",
+            after: lastMessage.toString()
+          },
+        });
+  } else  response = await fetch(
+      console.log("bypassing the variable")
+      `https://discord.com/api/v10/channels/${channel}/messages`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+          Accept: "application/json",
+        },
+      });
+
     // new URLSearchParams({ limit: 10 })
-  );
+
   const data = await response.json();
   // console.log(await data);
   return await data;
 }
+
+async function getLastStoredMessage (source, channel) {
+  const endpoint = `https://api.mercantille.xyz/api/v1/last-handled/get-last-message-id`;
+  const payload = {
+    source_id: source,
+    source_sublocation: {
+      discord_channel_id: channel
+    }
+  };
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      "User-Agent":
+          "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+      Authorization: `Bearer ${process.env.BACKEND_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    console.error("Received error from server: %d", response.status);
+    console.log(response);
+  }
+  const data = await response.json();
+  return data.last_message_id;
+}
+async function setLastStoredMessage(sourceID, channelID, messageID) {
+  const endpoint = `https://api.mercantille.xyz/api/v1/last-handled/upsert`;
+  const payload = {
+    source_id: sourceID,
+    source_sublocation: {
+      discord_channel_id: channelID.toString()
+    },
+    last_message_id: messageID.toString()
+  };
+  console.log(JSON.stringify(payload));
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      "User-Agent":
+          "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+      Authorization: `Bearer ${process.env.BACKEND_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    console.error("Received error from server: %d", response.status);
+    console.log(response);
+  }
+  const data = await response.json();
+  return data.last_message_id;
+}
+
+
+export const reportMessage = async (
+    orgID,
+    actionID,
+    sourceID,
+    fromIdentity,
+    message
+) => {
+  const payload = {
+    event_histories: [
+      {
+        organization_id: orgID,
+        source_id: sourceID,
+        action_id: actionID,
+        identity_id: fromIdentity,
+        context: message,
+      },
+    ],
+  };
+  await storeActionInTheFeed(payload);
+};
 
 async function getGuilds() {
   const response = await fetch(
@@ -113,14 +245,57 @@ async function getGuilds() {
 // }
 
 // console.log(messages());
-const intervalMs = 10 * 1000; // every 1 minute
+const intervalMs = 3 * 1000; // every 1 minute
 const timeoutObj = setInterval(async () => {
   // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
   // const glds = await getGuilds();
-  const messages = await getMessagesPerChannel(
-    730806402351628301n,
-    1047445288702451723n
-  );
+
+  const sources = await getDiscordServers()
+  // console.log("lastmessage in channel")
+
+
+  // const lastmessage = await getLastStoredMessage(1, "918873143911809074")
+  // console.log(lastmessage);
+  // // console.log(await getChannelsPerServer(sources[0].external_key.toString()));
+  // console.log("all the rest")
+  const alltherest = await getMessagesPerChannel("1016756052148109453", "1041977739864981534");
+  // // const setmessage = await setLastStoredMessage(1, "918873143911809074", alltherest[0].id)
+  // console.log(alltherest.length)
+  console.log("booom")
+  console.log(alltherest);
+
+
+
+
+  // for (const source of sources) {
+  //   const serverChannels = await getChannelsPerServer(source.external_key.toString());
+  //   for (const channel of serverChannels) {
+  //     // console.log(channel.id);
+  //     if (channel.last_message_id) {
+  //       const lastStoredMessage = await getLastStoredMessage(source.id, channel.id.toString());
+  //       console.log(lastStoredMessage);
+  //       if (channel.id.toString() === "1006492222956515409") {
+  //         console.log("FOUND IT");
+  //         console.log(channel.id.toString());
+  //       }
+  //       const messages = await getMessagesPerChannel(channel.id.toString(), lastStoredMessage.toString());
+  //       console.log("getting messages");
+  //       console.log(messages);
+  //       console.log("got messages");
+  //       if (messages != [] && messages != undefined && messages && messages.length != 0 && messages.code != 0) {
+  //         console.log(channel);
+  //         await setLastStoredMessage(source.id, channel.id.toString(), channel.last_message_id.toString());
+  //         console.log(messages)
+  //         for (const message of messages) {
+  //           console.log(message);
+  //           const senderIdentityId = await getIdentityByID(1, message.author.id, message.author.username);
+  //           reportMessage(source.organization_id, 3, source.id, senderIdentityId, message.content)
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+
   // console.log(messages);
   // const channel = 730806402351628301n;
   // console.log(

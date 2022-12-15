@@ -43,7 +43,7 @@ export const reportPayment = async (
 };
 
 export const getOrgId = async (guildID) => {
-  console.log(guildID);
+  // console.log(guildID);
   const payload = {
     external_keys: [guildID.toString()],
   };
@@ -65,15 +65,20 @@ export const getOrgId = async (guildID) => {
   return data;
 };
 
-export const getIdentityByID = async (originID, userID) => {
+export const getIdentityByID = async (originID, userID, username) => {
+  // console.log(username)
   const payload = {
     identities: [
       {
         origin_id: originID,
         external_id: userID,
+        external_name: username.toString()
       },
     ],
   };
+  // console.log(payload);
+  // const stringified = JSON.stringify(payload);
+  // console.log(stringified);
   const endpoint =
     "https://api.mercantille.xyz/api/v1/user-identity/get-or-create";
   const response = await fetch(endpoint, {
@@ -87,10 +92,11 @@ export const getIdentityByID = async (originID, userID) => {
     body: JSON.stringify(payload),
   });
   const data = await response.json();
-  console.log(response.status);
+  // console.log(response.status);
   if (!response.ok) {
     console.error("Received error from server: %d", response.status);
   }
+  // console.log(data.identities)
   return data.identities[0].id;
 };
 
@@ -116,7 +122,6 @@ export const topUp = async (orgID, toUserID, amount, currencyID) => {
     body: JSON.stringify(payload),
   });
   const data = await response.json();
-  console.log(response.status);
   if (!response.ok) {
     console.error("Received error from server: %d", response.status);
   }
@@ -148,9 +153,9 @@ export const reportRepTransfer = async (
   await storeActionInTheFeed(payload);
 };
 
-const storeActionInTheFeed = async (action) => {
+export const storeActionInTheFeed = async (action) => {
   const endpoint = "https://api.mercantille.xyz/api/v1/event-history/create";
-  console.log(action);
+  // console.log(action);
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {

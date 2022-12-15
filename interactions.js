@@ -108,7 +108,8 @@ const handleGiverepCommand = async (payload) => {
       console.log("fromUser.id");
 
       console.log(fromUser.id);
-      const fromIdentity = await getIdentityByID(1, fromUser.id);
+      console.log(fromUser.username);
+      const fromIdentity = await getIdentityByID(1, fromUser.id, fromUser.username);
       await reportRepTransfer(
         orgID,
         1,
