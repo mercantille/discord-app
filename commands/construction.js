@@ -54,7 +54,8 @@ export const constructCustomCommand = (
         description: "Target user",
         required: true,
       })
-    } else if (sublects === 'multiple') {
+    }
+    if (sublects === 'multiple') {
       for (const i = 2; i < 7; i++) {
         options.push({
           type: 9, // MENTIONABLE
