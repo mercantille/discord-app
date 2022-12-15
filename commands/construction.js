@@ -56,7 +56,7 @@ export const constructCustomCommand = (
       })
     }
     if (sublects === 'multiple') {
-      for (const i = 2; i < 7; i++) {
+      for (let i = 2; i < 7; i++) {
         options.push({
           type: 9, // MENTIONABLE
           name: `target${i}`,
