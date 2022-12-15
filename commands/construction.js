@@ -26,16 +26,16 @@ export const constructCustomCommand = (
       required: true,
       choices: [ // TODO: this should be a dynamic list of currencies
         {
-          name: "rep",
-          value: "ᐩ"
+          name: "ᐩ",
+          value: "rep"
         },
         {
-          name: "eth",
-          value: "ETH"
+          name: "ETH",
+          value: "eth"
         },
         {
-          name: "btc",
-          value: "BTC"
+          name: "BTC",
+          value: "btc"
         },
       ]
     },{

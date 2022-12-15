@@ -153,7 +153,6 @@ const handleGiverepCommand = async (payload) => {
 // await reportRepTransfer(fromUser, toUser, amount, reason);
 
 const handleCreateCommandCommand = async (payload) => {
-  // TODO: update params according to https://3.basecamp.com/5433923/buckets/29084181/documents/5295606577#__recording_5567561462
   // TODO: validate params
   const commandName = payload.data.options[0].value;
   const description = payload.data.options[1].value;

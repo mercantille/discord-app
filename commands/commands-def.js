@@ -181,7 +181,6 @@ export const GIVEREP_COMMAND = {
   type: 1,
 };
 
-// TODO: update params here according to https://3.basecamp.com/5433923/buckets/29084181/documents/5295606577#__recording_5567561462
 export const CREATE_COMMAND = {
   name: "command",
   description: "Create custom command",
@@ -211,7 +210,7 @@ export const CREATE_COMMAND = {
       choices: [
         {
           name: "no_sublects",
-          value: "no sublects"
+          value: "no_sublects"
         },
         {
         name: "single",
@@ -231,7 +230,7 @@ export const CREATE_COMMAND = {
       choices: [
         {
           name: "not_rewarded",
-          value: "not rewarded"
+          value: "not_rewarded"
         },
         {
           name: "fixed",
@@ -250,11 +249,11 @@ export const CREATE_COMMAND = {
       description: "Is reward transacted (default) or generated",
       choices: [
         {
-          name: "transact",
+          name: "transactable",
           value: "transactable"
         },
         {
-          name: "generate",
+          name: "generated",
           value: "generated"
         }
       ],
