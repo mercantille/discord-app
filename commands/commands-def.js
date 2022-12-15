@@ -194,27 +194,25 @@ export const CREATE_COMMAND = {
     },
     {
       type: 3, // string
-      name: "bio",
+      name: "description",
       description: "Command description",
       required: true
     },
     {
       type: 5, // boolean
-      name: "uniquenamereq",
-      description: "Is unique event name required",
-      required: false
+      name: "uniqueevents",
+      description: "Does it require unique event names?",
+      required: true
     },
     {
-      type: 5, // boolean
-      name: "bioreq",
-      description: "Is event bio required",
-      required: false
-    },
-    {
-      type: 3,
+      type: 3, // string
       name: "sublects",
-      description: "Defines if multiple users can be command subjects",
+      description: "Defines how many users can be command subjects",
       choices: [
+        {
+          name: "no_sublects",
+          value: "no sublects"
+        },
         {
         name: "single",
         value: "single"
@@ -224,10 +222,10 @@ export const CREATE_COMMAND = {
           value: "multiple"
         }
       ],
-      required: false
+      required: true
     },
     {
-      type: 3,
+      type: 3, // string
       name: "rewardoption",
       description: "Reward type for this command",
       choices: [
@@ -243,12 +241,24 @@ export const CREATE_COMMAND = {
           name: "dynamic",
           value: "dynamic"
         },
+      ],
+      required: true
+    },
+    {
+      type: 3, // string
+      name: "rewardtype",
+      description: "Is reward transacted (default) or generated",
+      choices: [
         {
-          name: "per_name",
-          value: "per name"
+          name: "transact",
+          value: "transactable"
+        },
+        {
+          name: "generate",
+          value: "generated"
         }
       ],
-      required: false
+      required: false,
     }
   ]
 }

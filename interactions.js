@@ -8,6 +8,7 @@ import {
   getIdentityByID,
 } from "./bounties.js";
 import { HasGuildCommands } from "./commands/commands-def.js";
+import { constructCustomCommand } from "./commands/construction.js"
 
 export const handleApplicationCommand = async (name, payload) => {
   if (name === "test") {
@@ -155,50 +156,41 @@ const handleCreateCommandCommand = async (payload) => {
   // TODO: update params according to https://3.basecamp.com/5433923/buckets/29084181/documents/5295606577#__recording_5567561462
   // TODO: validate params
   const commandName = payload.data.options[0].value;
-  const bio = payload.data.options[1].value;
-  let isUniqueName;
+  const description = payload.data.options[1].value;
+  let hasUniqueEvents;
   if (payload.data.options[2]) {
-    isUniqueName = payload.data.options[2].value;
-  }
-
-  let isBioRequired;
-  if (payload.data.options[3]) {
-    isBioRequired = payload.data.options[3].value;
+    hasUniqueEvents = payload.data.options[2].value;
   }
 
   let sublects;
-  if (payload.data.options[4]) {
-    sublects = payload.data.options[4].value;
+  if (payload.data.options[3]) {
+    sublects = payload.data.options[3].value;
   }
 
   let rewardOption;
+  if (payload.data.options[4]) {
+    rewardOption = payload.data.options[4].value;
+  }
+
+  let rewardType;
   if (payload.data.options[5]) {
-    rewardOption = payload.data.options[5].value;
+    rewardType = payload.data.options[5].value;
   }
 
   const guildId = payload["guild_id"];
+  
   //TODO:  call backend to persist command
 
   // register command
-  const command = {
-    name: commandName,
-    description: bio,
-    type: 1,
-    options: [ // TODO: update params for registration
-      {
-        type: 3, // string
-        name: "uniquename",
-        description: "Unique name for sub event",
-        required: false,
-      },
-      {
-        type: 10, // number
-        name: "reward",
-        description: "Reward!",
-        required: false,
-      },
-    ],
-  };
+  const command = constructCustomCommand(
+    commandName,
+    description,
+    hasUniqueEvents,
+    sublects,
+    rewardOption,
+    rewardType
+  )
+
   await HasGuildCommands(process.env.APP_ID, guildId, [command]);
 
   // return response for the creation
