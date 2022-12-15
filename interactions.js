@@ -151,6 +151,7 @@ const handleGiverepCommand = async (payload) => {
 // await reportRepTransfer(fromUser, toUser, amount, reason);
 
 const handleCreateCommandCommand = async (payload) => {
+  // TODO: update params according to https://3.basecamp.com/5433923/buckets/29084181/documents/5295606577#__recording_5567561462
   // TODO: validate params
   const commandName = payload.data.options[0].value;
   const bio = payload.data.options[1].value;
@@ -209,6 +210,7 @@ const handleCreateCommandCommand = async (payload) => {
 };
 
 const handleUnknownCommand = (payload) => {
+  // TODO: check if present in DB for this guild_id
   console.error(payload);
   throw new Error("Unknown command provided");
 };
