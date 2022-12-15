@@ -120,13 +120,12 @@ async function getMessagesPerChannel(channel, lastMessage) {
     console.log(lastMessage);
     console.log("showing since last");
      response = await fetch(
-        `https://discord.com/api/v10/channels/${channel}/messages`,
+        `https://discord.com/api/v10/channels/${channel}/messages?after=${lastMessage}`,
         {
           method: "GET",
           headers: {
             Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
             Accept: "application/json",
-            after: lastMessage.toString()
           },
         });
   } else  response = await fetch(
@@ -258,6 +257,7 @@ const timeoutObj = setInterval(async () => {
   // console.log(lastmessage);
   // // console.log(await getChannelsPerServer(sources[0].external_key.toString()));
   // console.log("all the rest")
+  // 1022195500088315994
   const alltherest = await getMessagesPerChannel("1016756052148109453", "1041977739864981534");
   // // const setmessage = await setLastStoredMessage(1, "918873143911809074", alltherest[0].id)
   // console.log(alltherest.length)
