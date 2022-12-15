@@ -181,6 +181,7 @@ export const GIVEREP_COMMAND = {
   type: 1,
 };
 
+// TODO: update params here according to https://3.basecamp.com/5433923/buckets/29084181/documents/5295606577#__recording_5567561462
 export const CREATE_COMMAND = {
   name: "command",
   description: "Create custom command",

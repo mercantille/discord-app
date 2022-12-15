@@ -183,7 +183,7 @@ const handleCreateCommandCommand = async (payload) => {
     name: commandName,
     description: bio,
     type: 1,
-    options: [
+    options: [ // TODO: update params for registration
       {
         type: 3, // string
         name: "uniquename",
@@ -211,6 +211,7 @@ const handleCreateCommandCommand = async (payload) => {
 
 const handleUnknownCommand = (payload) => {
   // TODO: check if present in DB for this guild_id
+  // TODO if present, execute depending on params
   console.error(payload);
   throw new Error("Unknown command provided");
 };
