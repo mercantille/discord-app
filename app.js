@@ -128,17 +128,19 @@ async function getMessagesPerChannel(channel, lastMessage) {
         },
       }
     );
-  } else console.log("bypassing the variable");
-  response = await fetch(
-    `https://discord.com/api/v10/channels/${channel}/messages`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
-        Accept: "application/json",
-      },
-    }
-  );
+  } else {
+    console.log("bypassing the variable");
+    response = await fetch(
+      `https://discord.com/api/v10/channels/${channel}/messages`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+          Accept: "application/json",
+        },
+      }
+    );
+  }
 
   // new URLSearchParams({ limit: 10 })
 
@@ -266,12 +268,12 @@ const timeoutObj = setInterval(async () => {
   // // // const setmessage = await setLastStoredMessage(1, "918873143911809074", alltherest[0].id)
   // // console.log(alltherest.length)
   // console.log("booom")
-  let lastmessage = await getLastStoredMessage(1, "1016756052148109453");
+  let lastMessage = await getLastStoredMessage(1, "1016756052148109453");
 
-  console.log(lastmessage);
+  console.log(lastMessage);
   const fundMessages = await getMessagesPerChannel(
     "1016756052148109453",
-    "1053371675212783678"
+    lastMessage
   );
   console.log(fundMessages);
   // let reversedMessages = fundMessages.reverse();
