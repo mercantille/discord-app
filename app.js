@@ -12,8 +12,8 @@ import {
   UpdateGuildCommand,
   CREATE_COMMAND,
 } from "./commands/commands-def.js";
-import { handleApplicationCommand  } from "./interactions.js";
-import {getIdentityByID, storeActionInTheFeed} from "./bounties.js";
+import { handleApplicationCommand } from "./interactions.js";
+import { getIdentityByID, storeActionInTheFeed } from "./bounties.js";
 
 // Create an express app
 const app = express();
@@ -73,18 +73,17 @@ app.listen(PORT, () => {
   UpdateGuildCommand(process.env.APP_ID, undefined, CREATE_COMMAND);
 });
 
-
 async function getDiscordServers() {
   const endpoint = "https://api.mercantille.xyz/api/v1/source/query";
   const payload = {
-    names: ["Discord"]
+    names: ["Discord"],
   };
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json; charset=UTF-8",
       "User-Agent":
-          "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+        "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
       Authorization: `Bearer ${process.env.BACKEND_ACCESS_TOKEN}`,
     },
     body: JSON.stringify(payload),
@@ -119,47 +118,49 @@ async function getMessagesPerChannel(channel, lastMessage) {
   if (lastMessage && lastMessage !== undefined) {
     console.log(lastMessage);
     console.log("showing since last");
-     response = await fetch(
-        `https://discord.com/api/v10/channels/${channel}/messages?after=${lastMessage}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
-            Accept: "application/json",
-          },
-        });
-  } else  response = await fetch(
-      console.log("bypassing the variable")
-      `https://discord.com/api/v10/channels/${channel}/messages`,
+    response = await fetch(
+      `https://discord.com/api/v10/channels/${channel}/messages?after=${lastMessage}`,
       {
         method: "GET",
         headers: {
           Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
           Accept: "application/json",
         },
-      });
+      }
+    );
+  } else console.log("bypassing the variable");
+  response = await fetch(
+    `https://discord.com/api/v10/channels/${channel}/messages`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+        Accept: "application/json",
+      },
+    }
+  );
 
-    // new URLSearchParams({ limit: 10 })
+  // new URLSearchParams({ limit: 10 })
 
   const data = await response.json();
   // console.log(await data);
   return await data;
 }
 
-async function getLastStoredMessage (source, channel) {
+async function getLastStoredMessage(source, channel) {
   const endpoint = `https://api.mercantille.xyz/api/v1/last-handled/get-last-message-id`;
   const payload = {
     source_id: source,
     source_sublocation: {
-      discord_channel_id: channel
-    }
+      discord_channel_id: channel,
+    },
   };
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json; charset=UTF-8",
       "User-Agent":
-          "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+        "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
       Authorization: `Bearer ${process.env.BACKEND_ACCESS_TOKEN}`,
     },
     body: JSON.stringify(payload),
@@ -176,9 +177,9 @@ async function setLastStoredMessage(sourceID, channelID, messageID) {
   const payload = {
     source_id: sourceID,
     source_sublocation: {
-      discord_channel_id: channelID.toString()
+      discord_channel_id: channelID.toString(),
     },
-    last_message_id: messageID.toString()
+    last_message_id: messageID.toString(),
   };
   console.log(JSON.stringify(payload));
   const response = await fetch(endpoint, {
@@ -186,7 +187,7 @@ async function setLastStoredMessage(sourceID, channelID, messageID) {
     headers: {
       "Content-Type": "application/json; charset=UTF-8",
       "User-Agent":
-          "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+        "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
       Authorization: `Bearer ${process.env.BACKEND_ACCESS_TOKEN}`,
     },
     body: JSON.stringify(payload),
@@ -199,13 +200,12 @@ async function setLastStoredMessage(sourceID, channelID, messageID) {
   return data.last_message_id;
 }
 
-
 export const reportMessage = async (
-    orgID,
-    actionID,
-    sourceID,
-    fromIdentity,
-    message
+  orgID,
+  actionID,
+  sourceID,
+  fromIdentity,
+  message
 ) => {
   const payload = {
     event_histories: [
@@ -244,52 +244,92 @@ async function getGuilds() {
 // }
 
 // console.log(messages());
-const intervalMs = 3 * 1000; // every 1 minute
+const intervalMs = 10 * 1000; // every 1 minute
+let isRunning = false;
 const timeoutObj = setInterval(async () => {
   // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
   // const glds = await getGuilds();
 
-  const sources = await getDiscordServers()
-  // console.log("lastmessage in channel")
+  if (isRunning) {
+    return;
+  }
 
+  const sources = await getDiscordServers();
+  // console.log("lastmessage in channel")
 
   // const lastmessage = await getLastStoredMessage(1, "918873143911809074")
   // console.log(lastmessage);
   // // console.log(await getChannelsPerServer(sources[0].external_key.toString()));
   // console.log("all the rest")
   // 1022195500088315994
-  const alltherest = await getMessagesPerChannel("1016756052148109453", "1041977739864981534");
-  // // const setmessage = await setLastStoredMessage(1, "918873143911809074", alltherest[0].id)
-  // console.log(alltherest.length)
-  console.log("booom")
-  console.log(alltherest);
+  // const alltherest = await getMessagesPerChannel("1016756052148109453", "1041977739864981534");
+  // // // const setmessage = await setLastStoredMessage(1, "918873143911809074", alltherest[0].id)
+  // // console.log(alltherest.length)
+  // console.log("booom")
+  let lastmessage = await getLastStoredMessage(1, "1016756052148109453");
 
-
-
-
+  console.log(lastmessage);
+  const fundMessages = await getMessagesPerChannel(
+    "1016756052148109453",
+    "1053371675212783678"
+  );
+  console.log(fundMessages);
+  // let reversedMessages = fundMessages.reverse();
+  // console.log(reversedMessages);
+  // for (const message of reversedMessages) {
+  //   console.log(message.id);
+  //   await setLastStoredMessage(1, "1016756052148109453", message.id);
+  //   const senderIdentityId = await getIdentityByID(
+  //     1,
+  //     message.author.id,
+  //     message.author.username
+  //   );
+  //   reportMessage(1, 3, 1, senderIdentityId, message.content);
+  // }
+  // console.log(alltherest);
+  // isRunning = true;
   // for (const source of sources) {
-  //   const serverChannels = await getChannelsPerServer(source.external_key.toString());
+  //   isRunning = true;
+  //   const serverChannels = await getChannelsPerServer(
+  //     source.external_key.toString()
+  //   );
   //   for (const channel of serverChannels) {
   //     // console.log(channel.id);
   //     if (channel.last_message_id) {
-  //       const lastStoredMessage = await getLastStoredMessage(source.id, channel.id.toString());
-  //       console.log(lastStoredMessage);
-  //       if (channel.id.toString() === "1006492222956515409") {
-  //         console.log("FOUND IT");
-  //         console.log(channel.id.toString());
-  //       }
-  //       const messages = await getMessagesPerChannel(channel.id.toString(), lastStoredMessage.toString());
-  //       console.log("getting messages");
-  //       console.log(messages);
-  //       console.log("got messages");
-  //       if (messages != [] && messages != undefined && messages && messages.length != 0 && messages.code != 0) {
-  //         console.log(channel);
-  //         await setLastStoredMessage(source.id, channel.id.toString(), channel.last_message_id.toString());
-  //         console.log(messages)
+  //       const lastStoredMessage = await getLastStoredMessage(
+  //         source.id,
+  //         channel.id.toString()
+  //       );
+  //       const messages = await getMessagesPerChannel(
+  //         channel.id.toString(),
+  //         lastStoredMessage.toString()
+  //       );
+  //       if (
+  //         messages != [] &&
+  //         messages != undefined &&
+  //         messages &&
+  //         messages.length > 1 &&
+  //         messages.code != 0
+  //       ) {
   //         for (const message of messages) {
-  //           console.log(message);
-  //           const senderIdentityId = await getIdentityByID(1, message.author.id, message.author.username);
-  //           reportMessage(source.organization_id, 3, source.id, senderIdentityId, message.content)
+  //           const senderIdentityId = await getIdentityByID(
+  //             1,
+  //             message.author.id,
+  //             message.author.username
+  //           );
+  //           reportMessage(
+  //             source.organization_id,
+  //             3,
+  //             source.id,
+  //             senderIdentityId,
+  //             message.content
+  //           );
+  //           console.log(message.id);
+  //           await setLastStoredMessage(
+  //             source.id,
+  //             channel.id.toString(),
+  //             message.id
+  //           );
   //         }
   //       }
   //     }
@@ -304,6 +344,7 @@ const timeoutObj = setInterval(async () => {
   // console.log(
   //   `https://discord.com/api/v10/channels/${channel}/messages?limit=3`
   // );
+  isRunning = true;
 }, intervalMs);
 
 app.once("close", () => {
