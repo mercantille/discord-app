@@ -87,6 +87,9 @@ export const storeCommand = async (
   rewardType
 ) => {
   const sources = await getOrgId(guildId)
+  console.log("Found sources for guild:")
+  console.log(sources)
+  
   if (!sources || !sources.sources || sources.sources.length === 0) {
     console.error(`Sources not found for guildId ${guildId}`)
     return
@@ -94,15 +97,18 @@ export const storeCommand = async (
   const sourceId = sources.sources[0].sourceId // for now, it's only discord
 
   const payload = {
-    "source_id": sourceId,
-    "type": "Command",
-    "name": commandName,
-    "description": description,
-    "is_transfer": rewardType === 'transactable',
-    "specifics_required": hasUniqueEvents,
-    "users_targeted": sublects === 'multiple' ? 2 : sublects === 'single' ? 1 : 0, // weirdly, backend accepts int type for this
-    "custom_rewards": rewardOption === 'dynamic'
+    source_id: sourceId,
+    type: "Command",
+    name: commandName,
+    description: description,
+    is_transfer: rewardType === 'transactable',
+    specifics_required: hasUniqueEvents,
+    users_targeted: sublects === 'multiple' ? 2 : sublects === 'single' ? 1 : 0, // weirdly, backend accepts int type for this
+    custom_rewards: rewardOption === 'dynamic'
   }
+
+  console.log("Payload constructed")
+  console.log(payload)
 
   const endpoint = "https://api.mercantille.xyz/api/v1/action/create";
   const response = await fetch(endpoint, {
