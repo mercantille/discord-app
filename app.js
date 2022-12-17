@@ -241,57 +241,9 @@ async function getGuilds() {
   return data;
 }
 
-// async function handleMessageHistory() {
-//   const guilds =
-// }
-
-// console.log(messages());
-const intervalMs = 60 * 1000; // every 1 minute
-let isRunning = false;
-const timeoutObj = setInterval(async () => {
-  // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
-  // const glds = await getGuilds();
-
-  if (isRunning) {
-    return;
-  }
-
+async function handleMessageHistory() {
   const sources = await getDiscordServers();
-  // console.log("lastmessage in channel")
-
-  // const lastmessage = await getLastStoredMessage(1, "918873143911809074")
-  // console.log(lastmessage);
-  // // console.log(await getChannelsPerServer(sources[0].external_key.toString()));
-  // console.log("all the rest")
-  // 1022195500088315994
-  // const alltherest = await getMessagesPerChannel("1016756052148109453", "1041977739864981534");
-  // // // const setmessage = await setLastStoredMessage(1, "918873143911809074", alltherest[0].id)
-  // // console.log(alltherest.length)
-  // console.log("booom")
-  // let lastMessage = await getLastStoredMessage(1, "1016756052148109453");
-  //
-  // console.log(lastMessage);
-  // const fundMessages = await getMessagesPerChannel(
-  //   "1016756052148109453",
-  //   lastMessage
-  // );
-  // console.log(fundMessages);
-  // let reversedMessages = fundMessages.reverse();
-  // console.log(reversedMessages);
-  // for (const message of reversedMessages) {
-  //   console.log(message.id);
-  //   await setLastStoredMessage(1, "1016756052148109453", message.id);
-  //   const senderIdentityId = await getIdentityByID(
-  //     1,
-  //     message.author.id,
-  //     message.author.username
-  //   );
-  //   reportMessage(1, 3, 1, senderIdentityId, message.content);
-  // }
-  // console.log(alltherest);
-  // isRunning = true;
   for (const source of sources) {
-    isRunning = true;
     const serverChannels = await getChannelsPerServer(
       source.external_key.toString()
     );
@@ -342,16 +294,17 @@ const timeoutObj = setInterval(async () => {
       }
     }
   }
+}
 
-  // console.log(messages);
-  // const channel = 730806402351628301n;
-  // console.log(
-  //   `https://discord.com/api/v10/channels/730806402351628301/messages?limit=3`
-  // );
-  // console.log(
-  //   `https://discord.com/api/v10/channels/${channel}/messages?limit=3`
-  // );
-  isRunning = true;
+const intervalMs = 60 * 1000; // every 1 minute
+let isRunning = false;
+const timeoutObj = setInterval(async () => {
+  // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
+  if (!isRunning) {
+    isRunning = true;
+    await handleMessageHistory();
+  }
+  isRunning = false;
 }, intervalMs);
 
 app.once("close", () => {
