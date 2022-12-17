@@ -94,7 +94,7 @@ export const storeCommand = async (
     console.error(`Sources not found for guildId ${guildId}`)
     return
   }
-  const sourceId = sources.sources[0].sourceId // for now, it's only discord
+  const sourceId = sources.sources[0].id // for now, it's only discord
 
   const payload = {
     source_id: sourceId,
