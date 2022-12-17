@@ -115,11 +115,15 @@ export const storeCommand = async (
     },
     body: JSON.stringify(payload),
   });
-  const data = await response.json();
+
   if (!response.ok) {
-    console.error("Received error from server: %d", resp.status);
+    console.error("Received error from server: %d", response.status);
+    if (response.bodyUsed) {
+      console.log(await response.text())
+    }
     return
   }
 
+  const data = await response.json();
   return data
 }
