@@ -104,7 +104,7 @@ export const storeCommand = async (
     "custom_rewards": rewardOption === 'dynamic'
   }
 
-  const endpoint = "https://api.mercantille.xyz/api/v1/actions/create";
+  const endpoint = "https://api.mercantille.xyz/api/v1/action/create";
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
