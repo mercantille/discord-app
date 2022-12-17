@@ -246,7 +246,7 @@ async function getGuilds() {
 // }
 
 // console.log(messages());
-const intervalMs = 10 * 1000; // every 1 minute
+const intervalMs = 60 * 1000; // every 1 minute
 let isRunning = false;
 const timeoutObj = setInterval(async () => {
   // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
@@ -268,14 +268,14 @@ const timeoutObj = setInterval(async () => {
   // // // const setmessage = await setLastStoredMessage(1, "918873143911809074", alltherest[0].id)
   // // console.log(alltherest.length)
   // console.log("booom")
-  let lastMessage = await getLastStoredMessage(1, "1016756052148109453");
-
-  console.log(lastMessage);
-  const fundMessages = await getMessagesPerChannel(
-    "1016756052148109453",
-    lastMessage
-  );
-  console.log(fundMessages);
+  // let lastMessage = await getLastStoredMessage(1, "1016756052148109453");
+  //
+  // console.log(lastMessage);
+  // const fundMessages = await getMessagesPerChannel(
+  //   "1016756052148109453",
+  //   lastMessage
+  // );
+  // console.log(fundMessages);
   // let reversedMessages = fundMessages.reverse();
   // console.log(reversedMessages);
   // for (const message of reversedMessages) {
@@ -290,53 +290,58 @@ const timeoutObj = setInterval(async () => {
   // }
   // console.log(alltherest);
   // isRunning = true;
-  // for (const source of sources) {
-  //   isRunning = true;
-  //   const serverChannels = await getChannelsPerServer(
-  //     source.external_key.toString()
-  //   );
-  //   for (const channel of serverChannels) {
-  //     // console.log(channel.id);
-  //     if (channel.last_message_id) {
-  //       const lastStoredMessage = await getLastStoredMessage(
-  //         source.id,
-  //         channel.id.toString()
-  //       );
-  //       const messages = await getMessagesPerChannel(
-  //         channel.id.toString(),
-  //         lastStoredMessage.toString()
-  //       );
-  //       if (
-  //         messages != [] &&
-  //         messages != undefined &&
-  //         messages &&
-  //         messages.length > 1 &&
-  //         messages.code != 0
-  //       ) {
-  //         for (const message of messages) {
-  //           const senderIdentityId = await getIdentityByID(
-  //             1,
-  //             message.author.id,
-  //             message.author.username
-  //           );
-  //           reportMessage(
-  //             source.organization_id,
-  //             3,
-  //             source.id,
-  //             senderIdentityId,
-  //             message.content
-  //           );
-  //           console.log(message.id);
-  //           await setLastStoredMessage(
-  //             source.id,
-  //             channel.id.toString(),
-  //             message.id
-  //           );
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+  for (const source of sources) {
+    isRunning = true;
+    const serverChannels = await getChannelsPerServer(
+      source.external_key.toString()
+    );
+    for (const channel of serverChannels) {
+      // console.log(channel.id);
+      if (channel.last_message_id) {
+        const lastStoredMessage = await getLastStoredMessage(
+          source.id,
+          channel.id.toString()
+        );
+        const reversedMessages = await getMessagesPerChannel(
+          channel.id.toString(),
+          lastStoredMessage.toString()
+        );
+        const messages = reversedMessages.reverse();
+        if (
+          messages != [] &&
+          messages != undefined &&
+          messages &&
+          messages.length > 0 &&
+          messages.code != 0
+        ) {
+          for (const message of messages) {
+            if (message.id != lastStoredMessage) {
+              const senderIdentityId = await getIdentityByID(
+                1,
+                message.author.id,
+                message.author.username
+              );
+              let context =
+                "sent a new message in the channel #" + channel.name;
+              reportMessage(
+                source.organization_id,
+                3,
+                source.id,
+                senderIdentityId,
+                context
+              );
+              console.log(message.id);
+              await setLastStoredMessage(
+                source.id,
+                channel.id.toString(),
+                message.id
+              );
+            }
+          }
+        }
+      }
+    }
+  }
 
   // console.log(messages);
   // const channel = 730806402351628301n;
