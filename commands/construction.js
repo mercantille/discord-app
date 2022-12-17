@@ -117,10 +117,8 @@ export const storeCommand = async (
   });
 
   if (!response.ok) {
-    console.error("Received error from server: %d", response.status);
-    if (response.bodyUsed) {
-      console.log(await response.text())
-    }
+    console.error("Received error from server: HTTP %d", response.status);
+    console.error((await response.text()))
     return
   }
 
