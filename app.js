@@ -258,6 +258,7 @@ async function handleMessageHistory() {
           channel.id.toString(),
           lastStoredMessage.toString()
         );
+        console.log(reversedMessages);
         const messages = reversedMessages.reverse();
         if (
           messages != [] &&
