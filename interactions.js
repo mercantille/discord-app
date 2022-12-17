@@ -8,7 +8,7 @@ import {
   getIdentityByID,
 } from "./bounties.js";
 import { HasGuildCommands } from "./commands/commands-def.js";
-import { constructCustomCommand } from "./commands/construction.js"
+import { constructCustomCommand } from "./commands/construction.js";
 
 export const handleApplicationCommand = async (name, payload) => {
   if (name === "test") {
@@ -91,7 +91,7 @@ const handleGiverepCommand = async (payload) => {
     return {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
-        content: `You can't send reputation you yourself, <@${fromUser.id}>!`,
+        content: `You can't send reputation to yourself, <@${fromUser.id}>!`,
       },
     };
   const negativeTopUpResp = await topUp(orgID, fromUser.id, -amount, 1);
@@ -110,7 +110,11 @@ const handleGiverepCommand = async (payload) => {
 
       console.log(fromUser.id);
       console.log(fromUser.username);
-      const fromIdentity = await getIdentityByID(1, fromUser.id, fromUser.username);
+      const fromIdentity = await getIdentityByID(
+        1,
+        fromUser.id,
+        fromUser.username
+      );
       await reportRepTransfer(
         orgID,
         1,
@@ -177,7 +181,7 @@ const handleCreateCommandCommand = async (payload) => {
   }
 
   const guildId = payload["guild_id"];
-  
+
   //TODO:  call backend to persist command
 
   // register command
@@ -188,7 +192,7 @@ const handleCreateCommandCommand = async (payload) => {
     sublects,
     rewardOption,
     rewardType
-  )
+  );
 
   await HasGuildCommands(process.env.APP_ID, guildId, [command]);
 
