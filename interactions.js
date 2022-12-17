@@ -8,7 +8,7 @@ import {
   getIdentityByID,
 } from "./bounties.js";
 import { HasGuildCommands } from "./commands/commands-def.js";
-import { constructCustomCommand } from "./commands/construction.js";
+import { constructCustomCommand, storeCommand } from "./commands/construction.js";
 
 export const handleApplicationCommand = async (name, payload) => {
   if (name === "test") {
@@ -182,7 +182,25 @@ const handleCreateCommandCommand = async (payload) => {
 
   const guildId = payload["guild_id"];
 
-  //TODO:  call backend to persist command
+  const storeCmdResp = await storeCommand(
+    guildId,
+    commandName,
+    description,
+    hasUniqueEvents,
+    sublects,
+    rewardOption,
+    rewardType
+  );
+
+  if (!storeCmdResp) {
+    console.error('Failed to store command action, aborting')
+    return {
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: `💀❌ command ${commandName} failed to be created for this server`,
+      },
+    }
+  }
 
   // register command
   const command = constructCustomCommand(

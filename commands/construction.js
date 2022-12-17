@@ -1,3 +1,4 @@
+import { getOrgId } from "../bounties.js"
 
 
 export const constructCustomCommand = (
@@ -38,7 +39,7 @@ export const constructCustomCommand = (
           value: "btc"
         },
       ]
-    },{
+    }, {
       type: 10, // number
       name: "amount",
       description: "Amount to be rewarded",
@@ -62,7 +63,7 @@ export const constructCustomCommand = (
           name: `target${i}`,
           description: `Target member ${i}`,
           required: false,
-        })  
+        })
       }
     }
   }
@@ -73,4 +74,51 @@ export const constructCustomCommand = (
     type: 1, // slash command
     options: options,
   };
+}
+
+export const storeCommand = async (
+  guildId,
+  commandName,
+  description,
+  hasUniqueEvents,
+  sublects,
+  rewardOption,
+  rewardType
+) => {
+  const sources = await getOrgId(guildId)
+  if (!sources || !sources.sources || sources.sources.length === 0) {
+    console.error(`Sources not found for guildId ${guildId}`)
+    return
+  }
+  const sourceId = sources.sources[0].sourceId // for now, it's only discord
+
+  const payload = {
+    "source_id": sourceId,
+    "type": "Command",
+    "name": commandName,
+    "description": description,
+    "is_transfer": rewardType === 'transactable',
+    "specifics_required": hasUniqueEvents,
+    "users_targeted": sublects === 'multiple' ? 2 : sublects === 'single' ? 1 : 0, // weirdly, backend accepts int type for this
+    "custom_rewards": rewardOption === 'dynamic'
+  }
+
+  const endpoint = "https://api.mercantille.xyz/api/v1/actions/create";
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      "User-Agent":
+        "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+      Authorization: `Bearer ${process.env.BACKEND_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    console.error("Received error from server: %d", resp.status);
+    return
+  }
+
+  return data
 }
