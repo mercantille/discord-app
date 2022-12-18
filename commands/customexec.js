@@ -82,12 +82,12 @@ const queryCommandByGuild = async (name, guildId) => {
     console.log('Received response:')
     console.log(commands)
 
-    if (commands.length === 0) {
+    if (commands.actions.length === 0) {
         console.error(`No commands found for name ${name} and guild ${guildId}`)
         return
     }
 
-    console.log(commands[0])
+    console.log(commands.actions[0])
 
-    return commands[0]
+    return commands.actions[0]
 }
