@@ -9,6 +9,7 @@ import {
 } from "./bounties.js";
 import { HasGuildCommands } from "./commands/commands-def.js";
 import { constructCustomCommand, storeCommand } from "./commands/construction.js";
+import { executeCustomCommand } from "./commands/customexec.js";
 
 export const handleApplicationCommand = async (name, payload) => {
   if (name === "test") {
@@ -28,7 +29,7 @@ export const handleApplicationCommand = async (name, payload) => {
     return await handleCreateCommandCommand(payload);
   }
 
-  return handleUnknownCommand(payload);
+  return await handleUnknownCommand(name, payload);
 };
 
 // TODO: add available commands to the command registry
@@ -223,9 +224,17 @@ const handleCreateCommandCommand = async (payload) => {
   };
 };
 
-const handleUnknownCommand = (payload) => {
-  // TODO: check if present in DB for this guild_id
-  // TODO if present, execute depending on params
-  console.error(payload);
-  throw new Error("Unknown command provided");
+const handleUnknownCommand = async (name, payload) => {
+  const executionResult = await executeCustomCommand(name, payload.guild_id)
+
+  if (executionResult) {
+    return executionResult
+  }
+
+  return {
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data: {
+      content: `❌ command ${name} was not found`,
+    },
+  };
 };
