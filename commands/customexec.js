@@ -1,15 +1,18 @@
 import { InteractionResponseType } from "discord-interactions";
+import e from "express";
 import fetch from "node-fetch";
 import { getOrgId } from "../bounties.js"
 
 
-export const executeCustomCommand = async (name, guildId) => {
+export const executeCustomCommand = async (name, payload) => {
     console.log(`Searching for command definition ${name}`)
-    const commandDef = await findCustomCommand(name, guildId)
+    const commandDef = await findCustomCommand(name, payload.guild_id)
 
     console.log(commandDef)
 
     if (commandDef) {
+        await doExecuteCommand(commandDef, payload)
+
         return {
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
@@ -90,4 +93,49 @@ const queryCommandByGuild = async (name, guildId) => {
     console.log(commands.actions[0])
 
     return commands.actions[0]
+}
+
+const doExecuteCommand = async (commandDef, payload) => {
+    const fromUser = payload.member.user;
+    const fromUserId = payload.member.id;
+  
+    const options = payload.data.options
+
+    let uniqueName
+    if (commandDef.uniqueEvents) {
+        uniqueName = options.shift().value
+    }
+
+    let monetaryAmount
+    if (commandDef.rewardOption === 'dynamic') {
+        let currency = options.shift().value
+        let amount = options.shift().value
+        monetaryAmount = {
+            currency,
+            amount
+        }
+    }
+
+    // TODO: handle fixed reward
+
+    const sublects = []
+    if (commandDef.sublects === 'single') {
+        sublects.push(options.shift())
+    } else if (commandDef.sublects === 'multiple') {
+        while (options.length > 0) {
+            sublects.push(options.shift())
+        }
+    }
+
+    if (commandDef.rewardType === 'transactable') {
+        if (monetaryAmount.currency === 'rep') {
+            // TODO: transfer rep
+        } else {
+            // TODO: transfer currency
+        }
+    }
+
+    // TODO: save action to backend
+
+    // TODO: construct response to discord
 }

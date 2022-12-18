@@ -225,7 +225,7 @@ const handleCreateCommandCommand = async (payload) => {
 };
 
 const handleUnknownCommand = async (name, payload) => {
-  const executionResult = await executeCustomCommand(name, payload.guild_id)
+  const executionResult = await executeCustomCommand(name, payload)
 
   if (executionResult) {
     return executionResult
