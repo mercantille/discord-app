@@ -4,6 +4,7 @@ import { getOrgId } from "../bounties.js"
 
 
 export const executeCustomCommand = async (name, guildId) => {
+    console.log(`Searching for command definition ${name}`)
     const commandDef = await findCustomCommand(name, guildId)
 
     console.log(commandDef)
@@ -56,6 +57,9 @@ const queryCommandByGuild = async (name, guildId) => {
         names: [name]
     }
 
+    console.log('Prepared payload:')
+    console.log(payload)
+
     const endpoint = "https://api.mercantille.xyz/api/v1/action/query";
     const response = await fetch(endpoint, {
         method: "POST",
@@ -75,6 +79,8 @@ const queryCommandByGuild = async (name, guildId) => {
     }
 
     const commands = await response.json()
+    console.log('Received response:')
+    console.log(commands)
 
     if (commands.length === 0) {
         console.error(`No commands found for name ${name} and guild ${guildId}`)
