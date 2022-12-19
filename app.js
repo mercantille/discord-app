@@ -13,7 +13,11 @@ import {
   CREATE_COMMAND,
 } from "./commands/commands-def.js";
 import { handleApplicationCommand } from "./interactions.js";
-import { getIdentityByID, storeActionInTheFeed } from "./bounties.js";
+import {
+  getIdentityByID,
+  storeActionInTheFeed,
+  storeActionWithTransactionInTheFeed,
+} from "./bounties.js";
 
 // Create an express app
 const app = express();
@@ -210,7 +214,7 @@ export const reportMessage = async (
   message
 ) => {
   const payload = {
-    event_histories: [
+    events: [
       {
         organization_id: orgID,
         source_id: sourceID,
@@ -220,7 +224,7 @@ export const reportMessage = async (
       },
     ],
   };
-  await storeActionInTheFeed(payload);
+  await storeActionWithTransactionInTheFeed(payload);
 };
 
 async function getGuilds() {

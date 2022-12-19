@@ -72,7 +72,7 @@ export const getIdentityByID = async (originID, userID, username) => {
       {
         origin_id: originID,
         external_id: userID,
-        external_name: username.toString()
+        external_name: username.toString(),
       },
     ],
   };
@@ -151,6 +151,26 @@ export const reportRepTransfer = async (
     ],
   };
   await storeActionInTheFeed(payload);
+};
+
+export const storeActionWithTransactionInTheFeed = async (action) => {
+  const endpoint = "https://api.mercantille.xyz/api/v1/event-history/trigger";
+  // console.log(action);
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      "User-Agent":
+        "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+      Authorization: `Bearer ${process.env.BACKEND_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify(action),
+  });
+  if (!response.ok) {
+    console.error("Received error from server: %d", response.status);
+    console.log(response);
+  }
+  // else console.log(resp);
 };
 
 export const storeActionInTheFeed = async (action) => {
