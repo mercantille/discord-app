@@ -120,8 +120,8 @@ async function getChannelsPerServer(server) {
 async function getMessagesPerChannel(channel, lastMessage) {
   let response = null;
   if (lastMessage && lastMessage !== undefined) {
-    console.log(lastMessage);
-    console.log("showing since last");
+    // console.log(lastMessage);
+    // console.log("showing since last");
     response = await fetch(
       `https://discord.com/api/v10/channels/${channel}/messages?after=${lastMessage}`,
       {
@@ -252,18 +252,20 @@ async function handleMessageHistory() {
       source.external_key.toString()
     );
     for (const channel of serverChannels) {
-      // console.log(channel.id);
+      console.log(channel.id);
       if (channel.last_message_id) {
         const lastStoredMessage = await getLastStoredMessage(
           source.id,
           channel.id.toString()
         );
+        console.log("Last handled");
+        console.log(lastStoredMessage);
         const reversedMessages = await getMessagesPerChannel(
           channel.id.toString(),
           lastStoredMessage.toString()
         );
-        console.log(reversedMessages);
         const messages = reversedMessages.reverse();
+        console.log(messages);
         if (
           messages != [] &&
           messages != undefined &&
@@ -287,7 +289,6 @@ async function handleMessageHistory() {
                 senderIdentityId,
                 context
               );
-              console.log(message.id);
               await setLastStoredMessage(
                 source.id,
                 channel.id.toString(),
@@ -307,7 +308,7 @@ const timeoutObj = setInterval(async () => {
   // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
   if (!isRunning) {
     isRunning = true;
-    await handleMessageHistory();
+    // await handleMessageHistory();
   }
   isRunning = false;
 }, intervalMs);

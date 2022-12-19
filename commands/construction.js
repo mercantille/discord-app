@@ -1,70 +1,73 @@
 import fetch from "node-fetch";
-import { getOrgId } from "../bounties.js"
-
+import { getOrgId } from "../bounties.js";
 
 export const constructCustomCommand = (
   commandName,
   description,
   hasUniqueEvents,
-  sublects,
+  subjects,
   rewardOption,
   rewardType
 ) => {
-  const options = []
+  const options = [];
   if (hasUniqueEvents) {
     options.push({
       type: 3, // string
       name: "uniquename",
       description: "Unique name for event",
       required: true,
-    })
+    });
   }
 
-  if (rewardOption && rewardOption === 'dynamic') {
-    options.push({
-      type: 3, // string
-      name: "currency",
-      description: "Reward currency",
-      required: true,
-      choices: [ // TODO: this should be a dynamic list of currencies
-        {
-          name: "ᐩ",
-          value: "rep"
-        },
-        {
-          name: "ETH",
-          value: "eth"
-        },
-        {
-          name: "BTC",
-          value: "btc"
-        },
-      ]
-    }, {
-      type: 10, // number
-      name: "amount",
-      description: "Amount to be rewarded",
-      required: true,
-    })
+  if (rewardOption && rewardOption === "dynamic") {
+    options.push(
+      {
+        type: 3, // string
+        name: "currency",
+        description: "Reward currency",
+        required: true,
+        choices: [
+          // TODO: this should be a dynamic list of currencies
+          {
+            name: "ᐩ",
+            value: "rep",
+          },
+          // {
+          //   name: "ETH",
+          //   value: "eth",
+          // },
+          // {
+          //   name: "BTC",
+          //   value: "btc",
+          // },
+        ],
+      },
+      {
+        type: 10, // number
+        name: "amount",
+        description: "Amount to be rewarded",
+        required: true,
+      }
+    );
   }
 
-  if (sublects && sublects !== undefined) {
-    if (sublects !== 'no_sublects') {
+  if (subjects && subjects !== undefined) {
+    if (subjects !== "no_subjects") {
       options.push({
         type: 6, // USER
         name: "target",
         description: "Target user",
         required: true,
-      })
+      });
     }
-    if (sublects === 'multiple') {
+    if (subjects === "multiple") {
       for (let i = 2; i < 7; i++) {
         options.push({
           type: 9, // MENTIONABLE
           name: `target${i}`,
           description: `Target member ${i}`,
           required: false,
-        })
+        });
       }
     }
   }
@@ -75,40 +78,40 @@ export const constructCustomCommand = (
     type: 1, // slash command
     options: options,
   };
-}
+};
 
 export const storeCommand = async (
   guildId,
   commandName,
   description,
   hasUniqueEvents,
-  sublects,
+  subjects,
   rewardOption,
   rewardType
 ) => {
-  const sources = await getOrgId(guildId)
-  console.log("Found sources for guild:")
-  console.log(sources)
-  
+  const sources = await getOrgId(guildId);
+  console.log("Found sources for guild:");
+  console.log(sources);
+
   if (!sources || !sources.sources || sources.sources.length === 0) {
-    console.error(`Sources not found for guildId ${guildId}`)
-    return
+    console.error(`Sources not found for guildId ${guildId}`);
+    return;
   }
-  const sourceId = sources.sources[0].id // for now, it's only discord
+  const sourceId = sources.sources[0].id; // for now, it's only discord
 
   const payload = {
     source_id: sourceId,
     type: "Command",
     name: commandName,
     description: description,
-    is_transfer: rewardType === 'transactable',
+    is_transfer: rewardType === "transactable",
     specifics_required: hasUniqueEvents,
-    users_targeted: sublects === 'multiple' ? 2 : sublects === 'single' ? 1 : 0, // weirdly, backend accepts int type for this
-    custom_rewards: rewardOption === 'dynamic'
-  }
+    users_targeted: subjects === "multiple" ? 2 : subjects === "single" ? 1 : 0, // weirdly, backend accepts int type for this
+    custom_rewards: rewardOption === "dynamic",
+  };
 
-  console.log("Payload constructed")
-  console.log(payload)
+  console.log("Payload constructed");
+  console.log(payload);
 
   const endpoint = "https://api.mercantille.xyz/api/v1/action/create";
   const response = await fetch(endpoint, {
@@ -124,10 +127,10 @@ export const storeCommand = async (
 
   if (!response.ok) {
     console.error("Received error from server: HTTP %d", response.status);
-    console.error((await response.text()))
-    return
+    console.error(await response.text());
+    return;
   }
 
   const data = await response.json();
-  return data
-}
+  return data;
+};

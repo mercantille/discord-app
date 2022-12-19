@@ -8,7 +8,10 @@ import {
   getIdentityByID,
 } from "./bounties.js";
 import { HasGuildCommands } from "./commands/commands-def.js";
-import { constructCustomCommand, storeCommand } from "./commands/construction.js";
+import {
+  constructCustomCommand,
+  storeCommand,
+} from "./commands/construction.js";
 import { executeCustomCommand } from "./commands/customexec.js";
 
 export const handleApplicationCommand = async (name, payload) => {
@@ -159,16 +162,16 @@ const handleGiverepCommand = async (payload) => {
 
 const handleCreateCommandCommand = async (payload) => {
   // TODO: validate params
-  const commandName = payload.data.options[0].value;
+  const commandName = "/" + payload.data.options[0].value;
   const description = payload.data.options[1].value;
   let hasUniqueEvents;
   if (payload.data.options[2]) {
     hasUniqueEvents = payload.data.options[2].value;
   }
 
-  let sublects;
+  let subjects;
   if (payload.data.options[3]) {
-    sublects = payload.data.options[3].value;
+    subjects = payload.data.options[3].value;
   }
 
   let rewardOption;
@@ -188,19 +191,19 @@ const handleCreateCommandCommand = async (payload) => {
     commandName,
     description,
     hasUniqueEvents,
-    sublects,
+    subjects,
     rewardOption,
     rewardType
   );
 
   if (!storeCmdResp) {
-    console.error('Failed to store command action, aborting')
+    console.error("Failed to store command action, aborting");
     return {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
         content: `💀❌ command ${commandName} failed to be created for this server`,
       },
-    }
+    };
   }
 
   // register command
@@ -208,7 +211,7 @@ const handleCreateCommandCommand = async (payload) => {
     commandName,
     description,
     hasUniqueEvents,
-    sublects,
+    subjects,
     rewardOption,
     rewardType
   );
@@ -225,10 +228,10 @@ const handleCreateCommandCommand = async (payload) => {
 };
 
 const handleUnknownCommand = async (name, payload) => {
-  const executionResult = await executeCustomCommand(name, payload)
+  const executionResult = await executeCustomCommand(name, payload);
 
   if (executionResult) {
-    return executionResult
+    return executionResult;
   }
 
   return {

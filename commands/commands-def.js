@@ -189,39 +189,39 @@ export const CREATE_COMMAND = {
       type: 3, // string,
       name: "name",
       description: "Command name",
-      required: true
+      required: true,
     },
     {
       type: 3, // string
       name: "description",
       description: "Command description",
-      required: true
+      required: true,
     },
     {
       type: 5, // boolean
       name: "uniqueevents",
       description: "Does it require unique event names?",
-      required: true
+      required: true,
     },
     {
       type: 3, // string
-      name: "sublects",
+      name: "subjects",
       description: "Defines how many users can be command subjects",
       choices: [
         {
-          name: "no_sublects",
-          value: "no_sublects"
+          name: "no_subjects",
+          value: "no_subjects",
         },
         {
-        name: "single",
-        value: "single"
+          name: "single",
+          value: "single",
         },
-        { 
+        {
           name: "multiple",
-          value: "multiple"
-        }
+          value: "multiple",
+        },
       ],
-      required: true
+      required: true,
     },
     {
       type: 3, // string
@@ -230,18 +230,18 @@ export const CREATE_COMMAND = {
       choices: [
         {
           name: "not_rewarded",
-          value: "not_rewarded"
+          value: "not_rewarded",
         },
         {
           name: "fixed",
-          value: "fixed"
+          value: "fixed",
         },
         {
           name: "dynamic",
-          value: "dynamic"
+          value: "dynamic",
         },
       ],
-      required: true
+      required: true,
     },
     {
       type: 3, // string
@@ -250,17 +250,17 @@ export const CREATE_COMMAND = {
       choices: [
         {
           name: "transactable",
-          value: "transactable"
+          value: "transactable",
         },
         {
           name: "generated",
-          value: "generated"
-        }
+          value: "generated",
+        },
       ],
       required: false,
-    }
-  ]
-}
+    },
+  ],
+};
 
 // Command containing options
 export const CHALLENGE_COMMAND = {
