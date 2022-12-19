@@ -162,7 +162,7 @@ const handleGiverepCommand = async (payload) => {
 
 const handleCreateCommandCommand = async (payload) => {
   // TODO: validate params
-  const commandName = "/" + payload.data.options[0].value;
+  const commandName = payload.data.options[0].value;
   const description = payload.data.options[1].value;
   let hasUniqueEvents;
   if (payload.data.options[2]) {

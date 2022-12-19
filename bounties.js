@@ -155,7 +155,7 @@ export const reportRepTransfer = async (
 
 export const storeActionWithTransactionInTheFeed = async (action) => {
   const endpoint = "https://api.mercantille.xyz/api/v1/event-history/trigger";
-  // console.log(action);
+  console.log(action);
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
@@ -169,8 +169,7 @@ export const storeActionWithTransactionInTheFeed = async (action) => {
   if (!response.ok) {
     console.error("Received error from server: %d", response.status);
     console.log(response);
-  }
-  // else console.log(resp);
+  } else console.log(response);
 };
 
 export const storeActionInTheFeed = async (action) => {

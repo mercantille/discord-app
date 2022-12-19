@@ -252,20 +252,18 @@ async function handleMessageHistory() {
       source.external_key.toString()
     );
     for (const channel of serverChannels) {
-      console.log(channel.id);
       if (channel.last_message_id) {
         const lastStoredMessage = await getLastStoredMessage(
           source.id,
           channel.id.toString()
         );
-        console.log("Last handled");
-        console.log(lastStoredMessage);
+
         const reversedMessages = await getMessagesPerChannel(
           channel.id.toString(),
           lastStoredMessage.toString()
         );
         const messages = reversedMessages.reverse();
-        console.log(messages);
+        // console.log(messages);
         if (
           messages != [] &&
           messages != undefined &&
@@ -275,6 +273,10 @@ async function handleMessageHistory() {
         ) {
           for (const message of messages) {
             if (message.id != lastStoredMessage) {
+              console.log(channel.id);
+              console.log("IM HANDLING THE NEW MESSAGE!");
+              console.log("Last handled");
+              console.log(lastStoredMessage);
               const senderIdentityId = await getIdentityByID(
                 1,
                 message.author.id,
@@ -282,13 +284,14 @@ async function handleMessageHistory() {
               );
               let context =
                 "sent a new message in the channel #" + channel.name;
-              reportMessage(
+              const reportMessageResp = await reportMessage(
                 source.organization_id,
                 3,
                 source.id,
                 senderIdentityId,
                 context
               );
+              console.log(reportMessageResp);
               await setLastStoredMessage(
                 source.id,
                 channel.id.toString(),
@@ -308,7 +311,7 @@ const timeoutObj = setInterval(async () => {
   // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
   if (!isRunning) {
     isRunning = true;
-    // await handleMessageHistory();
+    await handleMessageHistory();
   }
   isRunning = false;
 }, intervalMs);

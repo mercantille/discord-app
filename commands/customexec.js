@@ -115,7 +115,7 @@ const doExecuteCommand = async (commandDef, payload) => {
   const sources = await getOrgId(payload.guild_id);
   const sourceID = sources.sources[0].id;
   const orgID = sources.sources[0].organization_id;
-  const toUserName = payload.data.resolved.users.username;
+
   const fromUserIdentity = await getIdentityByID(
     1,
     fromUserId,
@@ -152,7 +152,7 @@ const doExecuteCommand = async (commandDef, payload) => {
 
   if (commandDef.rewardType === "transactable") {
     if (monetaryAmount.currency === "rep") {
-      // TODO: transfer rep
+      console.log(subjects);
       for (const subject of subjects) {
         const negativeTopUpResp = await topUp(
           orgID,
@@ -189,6 +189,7 @@ const doExecuteCommand = async (commandDef, payload) => {
         }
         // console.log(commandDef);
         // console.log("PAYLOAD");
+        const toUserName = payload.data.resolved.users[subject.value].username;
         await reportRepTransfer(
           orgID,
           commandDef.id,
@@ -197,21 +198,25 @@ const doExecuteCommand = async (commandDef, payload) => {
           toUserName,
           monetaryAmount.amount
         );
+      }
+      if (subjects.length === 1) {
         return {
           data: {
             content: `<@${fromUserId}> invoked the /${commandDef.name} command and transfered ${monetaryAmount.amount}ᐩ to <@${subject.value}>`,
           },
         };
-      }
+      } else
+        return {
+          data: {
+            content: `<@${fromUserId}> invoked the /${commandDef.name} command and transfered ${monetaryAmount.amount}ᐩ to multiple people!`,
+          },
+        };
     }
-    // if (!negativeTopUpResp.error) {
-    //     const positiveTopUpResp = await topUp(orgID, toUserId, monetaryAmount.amount, 1);
-    //     if (negativeTopUpResp.error) {
   } else {
     // TODO: transfer currency
   }
 
-  // TODO: save action to backend
+  // TODO: Generate rep
 
   // TODO: construct response to discord
 };
