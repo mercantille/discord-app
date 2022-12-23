@@ -292,11 +292,18 @@ const doExecuteCommand = async (commandDef, payload) => {
       );
       await topUp(orgID, subject.value, 1, 1);
     }
-    return {
-      data: {
-        content: `<@${fromUserId}> invoked the /${commandDef.name} command and rewarded multiple people!`,
-      },
-    };
+    if (subjects.length === 1)
+      return {
+        data: {
+          content: `<@${fromUserId}> invoked the /${commandDef.name} command and mentioned <@${subjects[0].value}`,
+        },
+      };
+    else
+      return {
+        data: {
+          content: `<@${fromUserId}> invoked the /${commandDef.name} command and mentioned multiple people!`,
+        },
+      };
   }
 
   // TODO: Generate rep
