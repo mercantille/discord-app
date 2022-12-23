@@ -6,7 +6,9 @@ import {
   getOrgId,
   reportRepTransfer,
   storeActionInTheFeed,
+  reportTriggerCommand,
   topUp,
+  reportFixedCommand,
 } from "../bounties.js";
 
 export const executeCustomCommand = async (name, payload) => {
@@ -45,7 +47,7 @@ const findCustomCommand = async (name, guildId) => {
     id: commandSettings.id,
     name: commandSettings.name,
     description: commandSettings.description,
-    uniqueEvents: commandSettings.specifics_required,
+    // uniqueEvents: commandSettings.specifics_required,
     subjects:
       commandSettings.users_targeted === 1
         ? "single"
@@ -115,7 +117,6 @@ const doExecuteCommand = async (commandDef, payload) => {
   const sources = await getOrgId(payload.guild_id);
   const sourceID = sources.sources[0].id;
   const orgID = sources.sources[0].organization_id;
-
   const fromUserIdentity = await getIdentityByID(
     1,
     fromUserId,
@@ -123,14 +124,23 @@ const doExecuteCommand = async (commandDef, payload) => {
   );
 
   const options = payload.data.options;
+  console.log("MOTHERFUCKING OPTIONS");
+  console.log("MOTHERFUCKING OPTIONS");
+  console.log("MOTHERFUCKING OPTIONS");
+  console.log("MOTHERFUCKING OPTIONS");
 
+  console.log(options);
+  console.log("END OF OPTIONS");
   let uniqueName;
-  if (commandDef.uniqueEvents) {
-    uniqueName = options.shift().value;
-  }
+  // if (commandDef.uniqueEvents) {
+  //   uniqueName = options.shift().value;
+  // }
 
   let monetaryAmount;
-  if (commandDef.rewardOption === "dynamic") {
+  if (
+    commandDef.rewardOption === "dynamic" &&
+    commandDef.subjects !== "no_subjects"
+  ) {
     let currency = options.shift().value;
     let amount = options.shift().value;
     monetaryAmount = {
@@ -139,7 +149,7 @@ const doExecuteCommand = async (commandDef, payload) => {
     };
   }
 
-  // TODO: handle fixed reward
+  let context = options.shift().value;
 
   const subjects = [];
   if (commandDef.subjects === "single") {
@@ -149,9 +159,11 @@ const doExecuteCommand = async (commandDef, payload) => {
       subjects.push(options.shift());
     }
   }
-
-  if (commandDef.rewardType === "transactable") {
-    if (monetaryAmount.currency === "rep") {
+  if (
+    commandDef.subjects !== "no_subjects" &&
+    commandDef.rewardOption !== "fixed"
+  ) {
+    if (commandDef.rewardType === "transactable") {
       console.log(subjects);
       for (const subject of subjects) {
         const negativeTopUpResp = await topUp(
@@ -187,8 +199,6 @@ const doExecuteCommand = async (commandDef, payload) => {
             },
           };
         }
-        // console.log(commandDef);
-        // console.log("PAYLOAD");
         const toUserName = payload.data.resolved.users[subject.value].username;
         await reportRepTransfer(
           orgID,
@@ -196,24 +206,97 @@ const doExecuteCommand = async (commandDef, payload) => {
           sourceID,
           fromUserIdentity,
           toUserName,
-          monetaryAmount.amount
+          monetaryAmount.amount,
+          context
         );
       }
       if (subjects.length === 1) {
         return {
           data: {
-            content: `<@${fromUserId}> invoked the /${commandDef.name} command and transfered ${monetaryAmount.amount}ᐩ to <@${subject.value}>`,
+            content: `<@${fromUserId}> invoked the /${commandDef.name} command and transfered ${monetaryAmount.amount}ᐩ to <@${subjects[0].value}>`,
           },
         };
-      } else
+      } else {
         return {
           data: {
             content: `<@${fromUserId}> invoked the /${commandDef.name} command and transfered ${monetaryAmount.amount}ᐩ to multiple people!`,
           },
         };
+      }
+    } else {
+      for (const subject of subjects) {
+        const positiveTopUpResp = await topUp(
+          orgID,
+          subject.value,
+          monetaryAmount.amount,
+          1
+        );
+        if (positiveTopUpResp.error) {
+          await topUp(orgID, fromUserId, monetaryAmount.amount, 1);
+          return {
+            data: {
+              content: `Something went wrong with the transaction, reach out to the Mercantille team!`,
+            },
+          };
+        }
+        const toUserName = payload.data.resolved.users[subject.value].username;
+        await reportRepTransfer(
+          orgID,
+          commandDef.id,
+          sourceID,
+          fromUserIdentity,
+          toUserName,
+          monetaryAmount.amount,
+          context
+        );
+      }
+      if (subjects.length === 1) {
+        return {
+          data: {
+            content: `<@${fromUserId}> invoked the /${commandDef.name} command and rewarded ${monetaryAmount.amount}ᐩ to <@${subjects[0].value}>`,
+          },
+        };
+      } else
+        return {
+          data: {
+            content: `<@${fromUserId}> invoked the /${commandDef.name} command and rewarded ${monetaryAmount.amount}ᐩ to multiple people!`,
+          },
+        };
     }
+  } else if (commandDef.subjects === "no_subjects") {
+    await reportTriggerCommand(
+      orgID,
+      commandDef.id,
+      sourceID,
+      fromUserIdentity,
+      context
+    );
+    return {
+      data: {
+        content: `<@${fromUserId}> invoked the /${commandDef.name} command!`,
+      },
+    };
   } else {
-    // TODO: transfer currency
+    for (const subject of subjects) {
+      console.log(subject);
+      console.log(subject.value);
+      const toUserName = payload.data.resolved.users[subject.value].username;
+      await reportFixedCommand(
+        orgID,
+        commandDef.id,
+        sourceID,
+        fromUserIdentity,
+        toUserName,
+        subject.value,
+        context
+      );
+      await topUp(orgID, subject.value, 1, 1);
+    }
+    return {
+      data: {
+        content: `<@${fromUserId}> invoked the /${commandDef.name} command and rewarded multiple people!`,
+      },
+    };
   }
 
   // TODO: Generate rep

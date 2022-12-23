@@ -11,8 +11,10 @@ import { HasGuildCommands } from "./commands/commands-def.js";
 import {
   constructCustomCommand,
   storeCommand,
+  createReward,
 } from "./commands/construction.js";
 import { executeCustomCommand } from "./commands/customexec.js";
+import fetch from "node-fetch";
 
 export const handleApplicationCommand = async (name, payload) => {
   if (name === "test") {
@@ -204,6 +206,19 @@ const handleCreateCommandCommand = async (payload) => {
         content: `💀❌ command ${commandName} failed to be created for this server`,
       },
     };
+  } else {
+    // console.log(storeCmdResp.id);
+    const createRewardResp = await createReward(storeCmdResp.id, 1, 10);
+
+    if (!createRewardResp) {
+      console.error("Failed to store command action, aborting");
+      return {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `💀❌ Failed to create reward for  ${commandName}!`,
+        },
+      };
+    }
   }
 
   // register command
@@ -225,6 +240,35 @@ const handleCreateCommandCommand = async (payload) => {
       content: `🤖 command ${commandName} is created for this server`,
     },
   };
+};
+
+export const getActionIDForNewMessage = async (sourceID) => {
+  const payload = {
+    source_ids: [sourceID],
+    types: ["NewMessage"],
+    name: "New message",
+  };
+  console.log(payload);
+  const endpoint = "https://api.mercantille.xyz/api/v1/action/query";
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      "User-Agent":
+        "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+      Authorization: `Bearer ${process.env.BACKEND_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    console.error("Received error from server: HTTP %d", response.status);
+    console.error(await response.text());
+    return;
+  } else {
+    const data = await response.json();
+    return data.actions[0].id;
+  }
 };
 
 const handleUnknownCommand = async (name, payload) => {

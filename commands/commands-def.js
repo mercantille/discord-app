@@ -197,12 +197,13 @@ export const CREATE_COMMAND = {
       description: "Command description",
       required: true,
     },
-    {
-      type: 5, // boolean
-      name: "uniqueevents",
-      description: "Does it require unique event names?",
-      required: true,
-    },
+
+    // {
+    //   type: 5, // boolean
+    //   name: "uniqueevents",
+    //   description: "Does it require unique event names?",
+    //   required: true,
+    // },
     {
       type: 3, // string
       name: "subjects",
@@ -228,10 +229,10 @@ export const CREATE_COMMAND = {
       name: "rewardoption",
       description: "Reward type for this command",
       choices: [
-        {
-          name: "not_rewarded",
-          value: "not_rewarded",
-        },
+        // {
+        //   name: "not_rewarded",
+        //   value: "not_rewarded",
+        // },
         {
           name: "fixed",
           value: "fixed",
@@ -257,7 +258,7 @@ export const CREATE_COMMAND = {
           value: "generated",
         },
       ],
-      required: false,
+      required: true,
     },
   ],
 };

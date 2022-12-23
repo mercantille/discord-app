@@ -4,22 +4,26 @@ import { getOrgId } from "../bounties.js";
 export const constructCustomCommand = (
   commandName,
   description,
-  hasUniqueEvents,
+  // hasUniqueEvents,
   subjects,
   rewardOption,
   rewardType
 ) => {
   const options = [];
-  if (hasUniqueEvents) {
-    options.push({
-      type: 3, // string
-      name: "uniquename",
-      description: "Unique name for event",
-      required: true,
-    });
-  }
+  // if (hasUniqueEvents) {
+  //   options.push({
+  //     type: 3, // string
+  //     name: "uniquename",
+  //     description: "Unique name for event",
+  //     required: true,
+  //   });
+  // }
 
-  if (rewardOption && rewardOption === "dynamic") {
+  if (
+    rewardOption &&
+    rewardOption === "dynamic" &&
+    subjects !== "no_subjects"
+  ) {
     options.push(
       {
         type: 3, // string
@@ -50,6 +54,21 @@ export const constructCustomCommand = (
       }
     );
   }
+
+  if (rewardType === "dynamic")
+    options.push({
+      type: 3, // string
+      name: "for",
+      description: "Reason for payment",
+      required: true,
+    });
+  else
+    options.push({
+      type: 3, // string
+      name: "context",
+      description: "Context or the action or reason for rewarding",
+      required: true,
+    });
 
   if (subjects && subjects !== undefined) {
     if (subjects !== "no_subjects") {
@@ -84,7 +103,7 @@ export const storeCommand = async (
   guildId,
   commandName,
   description,
-  hasUniqueEvents,
+  // hasUniqueEvents,
   subjects,
   rewardOption,
   rewardType
@@ -105,7 +124,7 @@ export const storeCommand = async (
     name: commandName,
     description: description,
     is_transfer: rewardType === "transactable",
-    specifics_required: hasUniqueEvents,
+    // specifics_required: hasUniqueEvents,
     users_targeted: subjects === "multiple" ? 2 : subjects === "single" ? 1 : 0, // weirdly, backend accepts int type for this
     custom_rewards: rewardOption === "dynamic",
   };
@@ -114,6 +133,34 @@ export const storeCommand = async (
   console.log(payload);
 
   const endpoint = "https://api.mercantille.xyz/api/v1/action/create";
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      "User-Agent":
+        "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+      Authorization: `Bearer ${process.env.BACKEND_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    console.error("Received error from server: HTTP %d", response.status);
+    console.error(await response.text());
+    return;
+  }
+
+  const data = await response.json();
+  return data;
+};
+
+export const createReward = async (actionID, currencyID, rewardValue) => {
+  const payload = {
+    action_id: actionID,
+    currency_id: currencyID,
+    reward_value: rewardValue,
+  };
+  const endpoint = "https://api.mercantille.xyz/api/v1/action-reward/create";
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {

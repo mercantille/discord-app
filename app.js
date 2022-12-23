@@ -12,7 +12,10 @@ import {
   UpdateGuildCommand,
   CREATE_COMMAND,
 } from "./commands/commands-def.js";
-import { handleApplicationCommand } from "./interactions.js";
+import {
+  handleApplicationCommand,
+  getActionIDForNewMessage,
+} from "./interactions.js";
 import {
   getIdentityByID,
   storeActionInTheFeed,
@@ -247,7 +250,14 @@ async function getGuilds() {
 
 async function handleMessageHistory() {
   const sources = await getDiscordServers();
+  console.log("sources");
+  console.log("sources");
+  console.log("sources");
+  console.log("sources");
+  console.log("sources");
+
   for (const source of sources) {
+    const actionID = await getActionIDForNewMessage(source.id);
     const serverChannels = await getChannelsPerServer(
       source.external_key.toString()
     );
@@ -272,21 +282,29 @@ async function handleMessageHistory() {
           messages.code != 0
         ) {
           for (const message of messages) {
-            if (message.id != lastStoredMessage) {
+            if (
+              message.id != lastStoredMessage &&
+              message.author.id !== "1029707900626669607" &&
+              message.author.id !== "976429060752298044"
+            ) {
               console.log(channel.id);
               console.log("IM HANDLING THE NEW MESSAGE!");
               console.log("Last handled");
               console.log(lastStoredMessage);
+
               const senderIdentityId = await getIdentityByID(
                 1,
                 message.author.id,
                 message.author.username
               );
+              console.log(source.organization_id);
+              console.log(source.id);
+              console.log(senderIdentityId);
               let context =
                 "sent a new message in the channel #" + channel.name;
               const reportMessageResp = await reportMessage(
                 source.organization_id,
-                3,
+                actionID,
                 source.id,
                 senderIdentityId,
                 context

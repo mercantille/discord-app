@@ -153,6 +153,51 @@ export const reportRepTransfer = async (
   await storeActionInTheFeed(payload);
 };
 
+export const reportFixedCommand = async (
+  orgID,
+  actionID,
+  sourceID,
+  fromIdentity,
+  toUserName,
+  toUserID,
+  context
+) => {
+  const payload = {
+    event_histories: [
+      {
+        organization_id: orgID,
+        source_id: sourceID,
+        action_id: actionID,
+        identity_id: fromIdentity,
+        context: String("→ " + toUserName + ", with context: " + context),
+      },
+    ],
+  };
+  console.log(payload);
+  await storeActionInTheFeed(payload);
+};
+
+export const reportTriggerCommand = async (
+  orgID,
+  actionID,
+  sourceID,
+  fromIdentity,
+  context
+) => {
+  const payload = {
+    events: [
+      {
+        organization_id: orgID,
+        source_id: sourceID,
+        action_id: actionID,
+        identity_id: fromIdentity,
+        context: context,
+      },
+    ],
+  };
+  await storeActionWithTransactionInTheFeed(payload);
+};
+
 export const storeActionWithTransactionInTheFeed = async (action) => {
   const endpoint = "https://api.mercantille.xyz/api/v1/event-history/trigger";
   console.log(action);
