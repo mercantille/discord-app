@@ -295,7 +295,7 @@ const doExecuteCommand = async (commandDef, payload) => {
     if (subjects.length === 1)
       return {
         data: {
-          content: `<@${fromUserId}> invoked the /${commandDef.name} command and mentioned <@${subjects[0].value}`,
+          content: `<@${fromUserId}> invoked the /${commandDef.name} command and mentioned <@${subjects[0].value}>`,
         },
       };
     else
