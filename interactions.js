@@ -208,7 +208,9 @@ const handleCreateCommandCommand = async (payload) => {
     };
   } else {
     // console.log(storeCmdResp.id);
-    const createRewardResp = await createReward(storeCmdResp.id, 1, 10);
+    if (rewardOption === "fixed") {
+      const createRewardResp = await createReward(storeCmdResp.id, 1, 10);
+    }
 
     if (!createRewardResp) {
       console.error("Failed to store command action, aborting");
