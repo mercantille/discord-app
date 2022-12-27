@@ -210,16 +210,15 @@ const handleCreateCommandCommand = async (payload) => {
     // console.log(storeCmdResp.id);
     if (rewardOption === "fixed") {
       const createRewardResp = await createReward(storeCmdResp.id, 1, 10);
-    }
-
-    if (!createRewardResp) {
-      console.error("Failed to store command action, aborting");
-      return {
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: `💀❌ Failed to create reward for  ${commandName}!`,
-        },
-      };
+      if (!createRewardResp) {
+        console.error("Failed to store command action, aborting");
+        return {
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `💀❌ Failed to create reward for  ${commandName}!`,
+          },
+        };
+      }
     }
   }
 
