@@ -160,6 +160,7 @@ export const createReward = async (actionID, currencyID, rewardValue) => {
     currency_id: currencyID,
     reward_value: rewardValue,
   };
+  console.log(payload);
   const endpoint = "https://api.mercantille.xyz/api/v1/action-reward/create";
   const response = await fetch(endpoint, {
     method: "POST",

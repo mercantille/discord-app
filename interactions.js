@@ -165,25 +165,31 @@ const handleGiverepCommand = async (payload) => {
 const handleCreateCommandCommand = async (payload) => {
   // TODO: validate params
   const commandName = payload.data.options[0].value;
+  console.log("commandName");
+  console.log(commandName);
   const description = payload.data.options[1].value;
-  let hasUniqueEvents;
-  if (payload.data.options[2]) {
-    hasUniqueEvents = payload.data.options[2].value;
-  }
+  console.log("description");
+  console.log(description);
 
   let subjects;
-  if (payload.data.options[3]) {
-    subjects = payload.data.options[3].value;
+  if (payload.data.options[2]) {
+    subjects = payload.data.options[2].value;
+    console.log("subjects");
+    console.log(subjects);
   }
 
   let rewardOption;
-  if (payload.data.options[4]) {
-    rewardOption = payload.data.options[4].value;
+  if (payload.data.options[3]) {
+    rewardOption = payload.data.options[3].value;
+    console.log("rewardOption");
+    console.log(rewardOption);
   }
 
   let rewardType;
-  if (payload.data.options[5]) {
-    rewardType = payload.data.options[5].value;
+  if (payload.data.options[4]) {
+    rewardType = payload.data.options[4].value;
+    console.log("rewardType");
+    console.log(rewardType);
   }
 
   const guildId = payload["guild_id"];
@@ -192,7 +198,6 @@ const handleCreateCommandCommand = async (payload) => {
     guildId,
     commandName,
     description,
-    hasUniqueEvents,
     subjects,
     rewardOption,
     rewardType
@@ -208,6 +213,9 @@ const handleCreateCommandCommand = async (payload) => {
     };
   } else {
     // console.log(storeCmdResp.id);
+    console.log("checking for reward option");
+    console.log(rewardOption);
+    console.log(rewardType);
     if (rewardOption === "fixed") {
       const createRewardResp = await createReward(storeCmdResp.id, 1, 10);
       if (!createRewardResp) {
@@ -226,7 +234,6 @@ const handleCreateCommandCommand = async (payload) => {
   const command = constructCustomCommand(
     commandName,
     description,
-    hasUniqueEvents,
     subjects,
     rewardOption,
     rewardType
