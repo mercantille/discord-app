@@ -181,6 +181,14 @@ export const GIVEREP_COMMAND = {
   type: 1,
 };
 
+export const CHECKREP_COMMAND = {
+  name: "checkrep",
+  description:
+    "check how much reputation you curently have and your reputation level on this server",
+  options: [],
+  type: 1,
+};
+
 export const CREATE_COMMAND = {
   name: "command",
   description: "Create custom command",

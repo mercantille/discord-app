@@ -124,13 +124,6 @@ const doExecuteCommand = async (commandDef, payload) => {
   );
 
   const options = payload.data.options;
-  console.log("MOTHERFUCKING OPTIONS");
-  console.log("MOTHERFUCKING OPTIONS");
-  console.log("MOTHERFUCKING OPTIONS");
-  console.log("MOTHERFUCKING OPTIONS");
-
-  console.log(options);
-  console.log("END OF OPTIONS");
   let uniqueName;
   // if (commandDef.uniqueEvents) {
   //   uniqueName = options.shift().value;
@@ -224,42 +217,63 @@ const doExecuteCommand = async (commandDef, payload) => {
         };
       }
     } else {
-      for (const subject of subjects) {
-        const positiveTopUpResp = await topUp(
-          orgID,
-          subject.value,
-          monetaryAmount.amount,
-          1
-        );
-        if (positiveTopUpResp.error) {
-          await topUp(orgID, fromUserId, monetaryAmount.amount, 1);
+      const permissions = payload.member.permissions;
+      console.log(permissions);
+      const bigPermissions = BigInt(permissions);
+
+      const isAdmin = !((permissions & (1 << 3)) === 0);
+
+      console.log("fromUser");
+      console.log("fromUser");
+      console.log("fromUser");
+      console.log("fromUser");
+
+      console.log(isAdmin);
+      console.log(" END OF fromUser");
+      if (isAdmin === true) {
+        for (const subject of subjects) {
+          const positiveTopUpResp = await topUp(
+            orgID,
+            subject.value,
+            monetaryAmount.amount,
+            1
+          );
+          if (positiveTopUpResp.error) {
+            await topUp(orgID, fromUserId, monetaryAmount.amount, 1);
+            return {
+              data: {
+                content: `Something went wrong with the transaction, reach out to the Mercantille team!`,
+              },
+            };
+          }
+          const toUserName =
+            payload.data.resolved.users[subject.value].username;
+          await reportRepTransfer(
+            orgID,
+            commandDef.id,
+            sourceID,
+            fromUserIdentity,
+            toUserName,
+            monetaryAmount.amount,
+            context
+          );
+        }
+        if (subjects.length === 1) {
           return {
             data: {
-              content: `Something went wrong with the transaction, reach out to the Mercantille team!`,
+              content: `<@${fromUserId}> invoked the /${commandDef.name} command and rewarded ${monetaryAmount.amount}ᐩ to <@${subjects[0].value}>`,
             },
           };
-        }
-        const toUserName = payload.data.resolved.users[subject.value].username;
-        await reportRepTransfer(
-          orgID,
-          commandDef.id,
-          sourceID,
-          fromUserIdentity,
-          toUserName,
-          monetaryAmount.amount,
-          context
-        );
-      }
-      if (subjects.length === 1) {
-        return {
-          data: {
-            content: `<@${fromUserId}> invoked the /${commandDef.name} command and rewarded ${monetaryAmount.amount}ᐩ to <@${subjects[0].value}>`,
-          },
-        };
+        } else
+          return {
+            data: {
+              content: `<@${fromUserId}> invoked the /${commandDef.name} command and rewarded ${monetaryAmount.amount}ᐩ to multiple people!`,
+            },
+          };
       } else
         return {
           data: {
-            content: `<@${fromUserId}> invoked the /${commandDef.name} command and rewarded ${monetaryAmount.amount}ᐩ to multiple people!`,
+            content: `Only admins can invoke commands with generated rewards`,
           },
         };
     }

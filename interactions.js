@@ -30,6 +30,10 @@ export const handleApplicationCommand = async (name, payload) => {
     return await handleGiverepCommand(payload);
   }
 
+  if (name === "checkrep") {
+    return await handleCheckrepCommand(payload);
+  }
+
   if (name === "command") {
     return await handleCreateCommandCommand(payload);
   }
@@ -160,94 +164,129 @@ const handleGiverepCommand = async (payload) => {
     };
 };
 
+const handleCheckrepCommand = async (payload) => {
+  const fromUser = payload.member.user;
+
+  const guildID = payload.guild_id;
+
+  console.log("Retrieving recipient data");
+
+  const orgIDResponse = await getOrgId(guildID);
+  const orgID = orgIDResponse.sources[0].organization_id;
+};
+
 // await reportRepTransfer(fromUser, toUser, amount, reason);
 
 const handleCreateCommandCommand = async (payload) => {
   // TODO: validate params
-  const commandName = payload.data.options[0].value;
-  console.log("commandName");
-  console.log(commandName);
-  const description = payload.data.options[1].value;
-  console.log("description");
-  console.log(description);
+  const fromUser = payload.member;
+  const permissions = payload.member.permissions;
+  console.log(permissions);
+  const bigPermissions = BigInt(permissions);
 
-  let subjects;
-  if (payload.data.options[2]) {
-    subjects = payload.data.options[2].value;
-    console.log("subjects");
-    console.log(subjects);
-  }
+  const perm = permissions & (1 << 3);
+  const isAdmin = !((permissions & (1 << 3)) === 0);
 
-  let rewardOption;
-  if (payload.data.options[3]) {
-    rewardOption = payload.data.options[3].value;
-    console.log("rewardOption");
-    console.log(rewardOption);
-  }
+  console.log("fromUser");
+  console.log("fromUser");
+  console.log("fromUser");
+  console.log("fromUser");
 
-  let rewardType;
-  if (payload.data.options[4]) {
-    rewardType = payload.data.options[4].value;
-    console.log("rewardType");
-    console.log(rewardType);
-  }
+  console.log(isAdmin);
+  console.log(" END OF fromUser");
 
-  const guildId = payload["guild_id"];
+  if (isAdmin === true) {
+    const commandName = payload.data.options[0].value;
+    console.log("commandName");
+    console.log(commandName);
+    const description = payload.data.options[1].value;
+    console.log("description");
+    console.log(description);
 
-  const storeCmdResp = await storeCommand(
-    guildId,
-    commandName,
-    description,
-    subjects,
-    rewardOption,
-    rewardType
-  );
+    let subjects;
+    if (payload.data.options[2]) {
+      subjects = payload.data.options[2].value;
+      console.log("subjects");
+      console.log(subjects);
+    }
 
-  if (!storeCmdResp) {
-    console.error("Failed to store command action, aborting");
+    let rewardOption;
+    if (payload.data.options[3]) {
+      rewardOption = payload.data.options[3].value;
+      console.log("rewardOption");
+      console.log(rewardOption);
+    }
+
+    let rewardType;
+    if (payload.data.options[4]) {
+      rewardType = payload.data.options[4].value;
+      console.log("rewardType");
+      console.log(rewardType);
+    }
+
+    const guildId = payload["guild_id"];
+
+    const storeCmdResp = await storeCommand(
+      guildId,
+      commandName,
+      description,
+      subjects,
+      rewardOption,
+      rewardType
+    );
+
+    if (!storeCmdResp) {
+      console.error("Failed to store command action, aborting");
+      return {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `💀❌ command ${commandName} failed to be created for this server`,
+        },
+      };
+    } else {
+      // console.log(storeCmdResp.id);
+      console.log("checking for reward option");
+      console.log(rewardOption);
+      console.log(rewardType);
+      if (rewardOption === "fixed") {
+        const createRewardResp = await createReward(storeCmdResp.id, 1, 10);
+        if (!createRewardResp) {
+          console.error("Failed to store command action, aborting");
+          return {
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: `💀❌ Failed to create reward for  ${commandName}!`,
+            },
+          };
+        }
+      }
+    }
+
+    // register command
+    const command = constructCustomCommand(
+      commandName,
+      description,
+      subjects,
+      rewardOption,
+      rewardType
+    );
+
+    await HasGuildCommands(process.env.APP_ID, guildId, [command]);
+
+    // return response for the creation
     return {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
-        content: `💀❌ command ${commandName} failed to be created for this server`,
+        content: `🤖 command ${commandName} is created for this server`,
       },
     };
-  } else {
-    // console.log(storeCmdResp.id);
-    console.log("checking for reward option");
-    console.log(rewardOption);
-    console.log(rewardType);
-    if (rewardOption === "fixed") {
-      const createRewardResp = await createReward(storeCmdResp.id, 1, 10);
-      if (!createRewardResp) {
-        console.error("Failed to store command action, aborting");
-        return {
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: `💀❌ Failed to create reward for  ${commandName}!`,
-          },
-        };
-      }
-    }
-  }
-
-  // register command
-  const command = constructCustomCommand(
-    commandName,
-    description,
-    subjects,
-    rewardOption,
-    rewardType
-  );
-
-  await HasGuildCommands(process.env.APP_ID, guildId, [command]);
-
-  // return response for the creation
-  return {
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      content: `🤖 command ${commandName} is created for this server`,
-    },
-  };
+  } else
+    return {
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: `Only admins can create commands!`,
+      },
+    };
 };
 
 export const getActionIDForNewMessage = async (sourceID) => {
