@@ -9,6 +9,7 @@ import {
   reportTriggerCommand,
   topUp,
   reportFixedCommand,
+  getActionRewards,
 } from "../bounties.js";
 
 export const executeCustomCommand = async (name, payload) => {
@@ -278,6 +279,8 @@ const doExecuteCommand = async (commandDef, payload) => {
         };
     }
   } else if (commandDef.subjects === "no_subjects") {
+    let rewards = await getActionRewards([commandDef.id]);
+    let reward = rewards[0].reward_value;
     await reportTriggerCommand(
       orgID,
       commandDef.id,
@@ -287,13 +290,13 @@ const doExecuteCommand = async (commandDef, payload) => {
     );
     return {
       data: {
-        content: `<@${fromUserId}> invoked the /${commandDef.name} command!`,
+        content: `<@${fromUserId}> invoked the /${commandDef.name} command! 🥑 They have been rewarded ${reward}ᐩ`,
       },
     };
   } else {
+    let rewards = await getActionRewards([commandDef.id]);
+    let reward = rewards[0].reward_value;
     for (const subject of subjects) {
-      console.log(subject);
-      console.log(subject.value);
       const toUserName = payload.data.resolved.users[subject.value].username;
       await reportFixedCommand(
         orgID,
@@ -304,18 +307,18 @@ const doExecuteCommand = async (commandDef, payload) => {
         subject.value,
         context
       );
-      await topUp(orgID, subject.value, 1, 1);
+      await topUp(orgID, subject.value, reward, 1);
     }
     if (subjects.length === 1)
       return {
         data: {
-          content: `<@${fromUserId}> invoked the /${commandDef.name} command and mentioned <@${subjects[0].value}>`,
+          content: `<@${fromUserId}> invoked the /${commandDef.name} command and mentioned <@${subjects[0].value}>! 🌚 <@${subjects[0].value}> received ${reward}ᐩ`,
         },
       };
     else
       return {
         data: {
-          content: `<@${fromUserId}> invoked the /${commandDef.name} command and mentioned multiple people!`,
+          content: `<@${fromUserId}> invoked the /${commandDef.name} command and mentioned multiple people! 🤌 All of them received ${reward}ᐩ`,
         },
       };
   }

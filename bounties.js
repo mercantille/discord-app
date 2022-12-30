@@ -153,6 +153,39 @@ export const reportRepTransfer = async (
   await storeActionInTheFeed(payload);
 };
 
+export const getActionRewards = async (actionIDs) => {
+  // var bearer = "Bearer " +  LOCALSTORAGE_VALUES.accessToken;
+
+  const payload = {
+    action_ids: actionIDs,
+  };
+  console.log(payload);
+  const endpoint = "https://api.mercantille.xyz/api/v1/action-reward/get";
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      "User-Agent":
+        "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+      Authorization: `Bearer ${process.env.BACKEND_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    console.error("Received error from server: HTTP %d", response.status);
+    console.error(await response.text());
+    return "undefined";
+  } else {
+    const data = await response.json();
+    let rewards = [];
+    if (data.actions_rewards.length > 0) {
+      rewards = data.actions_rewards;
+      return rewards;
+    } else return "undefined";
+  }
+};
+
 export const reportFixedCommand = async (
   orgID,
   actionID,
