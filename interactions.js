@@ -97,23 +97,12 @@ const handleGiverepCommand = async (payload) => {
 
   console.log("Retrieving recipient data");
   const toUser = await getUserById(toUserId);
-  const actionID = await queryCommandByGuild("/giverep ⁺ transfer", guildID);
-
-  console.log("ACTION ID");
-  console.log("ACTION ID");
-  console.log("ACTION ID");
-  console.log("ACTION ID");
-  console.log(actionID);
+  const command = await queryCommandByGuild("/giverep ⁺ transfer", guildID);
+  const actionID = command.id;
 
   const response = await getOrgId(guildID);
   const orgID = response.sources[0].organization_id;
   const sourceID = response.sources[0].id;
-  console.log("SOURCE ID");
-  console.log("SOURCE ID");
-  console.log("SOURCE ID");
-  console.log("SOURCE ID");
-  console.log("SOURCE ID");
-  console.log(sourceID);
 
   if (fromUser.id === toUserId)
     return {
@@ -123,9 +112,6 @@ const handleGiverepCommand = async (payload) => {
       },
     };
   const negativeTopUpResp = await topUp(orgID, fromUser.id, -amount, 1);
-  console.log(negativeTopUpResp.status);
-  console.log(negativeTopUpResp.wallets);
-  console.log(negativeTopUpResp.error);
   // const positiveTopUpResp = await topUp(orgID, toUserId, amount, 1);
 
   if (!negativeTopUpResp.error) {
@@ -192,47 +178,30 @@ const handleCreateCommandCommand = async (payload) => {
   // TODO: validate params
   const fromUser = payload.member;
   const permissions = payload.member.permissions;
-  console.log(permissions);
+
   const bigPermissions = BigInt(permissions);
 
   const perm = permissions & (1 << 3);
   const isAdmin = !((permissions & (1 << 3)) === 0);
 
-  console.log("fromUser");
-  console.log("fromUser");
-  console.log("fromUser");
-  console.log("fromUser");
-
-  console.log(isAdmin);
-  console.log(" END OF fromUser");
-
   if (isAdmin === true) {
     const commandName = payload.data.options[0].value;
-    console.log("commandName");
-    console.log(commandName);
+
     const description = payload.data.options[1].value;
-    console.log("description");
-    console.log(description);
 
     let subjects;
     if (payload.data.options[2]) {
       subjects = payload.data.options[2].value;
-      console.log("subjects");
-      console.log(subjects);
     }
 
     let rewardOption;
     if (payload.data.options[3]) {
       rewardOption = payload.data.options[3].value;
-      console.log("rewardOption");
-      console.log(rewardOption);
     }
 
     let rewardType;
     if (payload.data.options[4]) {
       rewardType = payload.data.options[4].value;
-      console.log("rewardType");
-      console.log(rewardType);
     }
 
     const guildId = payload["guild_id"];
@@ -256,9 +225,7 @@ const handleCreateCommandCommand = async (payload) => {
       };
     } else {
       // console.log(storeCmdResp.id);
-      console.log("checking for reward option");
-      console.log(rewardOption);
-      console.log(rewardType);
+
       if (rewardOption === "fixed") {
         const createRewardResp = await createReward(storeCmdResp.id, 1, 10);
         if (!createRewardResp) {
