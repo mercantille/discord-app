@@ -60,7 +60,7 @@ const findCustomCommand = async (name, guildId) => {
   };
 };
 
-const queryCommandByGuild = async (name, guildId) => {
+export const queryCommandByGuild = async (name, guildId) => {
   const sources = await getOrgId(guildId);
   console.log("Found sources for guild:");
   console.log(sources);

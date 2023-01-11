@@ -13,7 +13,10 @@ import {
   storeCommand,
   createReward,
 } from "./commands/construction.js";
-import { executeCustomCommand } from "./commands/customexec.js";
+import {
+  executeCustomCommand,
+  queryCommandByGuild,
+} from "./commands/customexec.js";
 import fetch from "node-fetch";
 
 export const handleApplicationCommand = async (name, payload) => {
@@ -94,8 +97,10 @@ const handleGiverepCommand = async (payload) => {
 
   console.log("Retrieving recipient data");
   const toUser = await getUserById(toUserId);
+  const actionID = await queryCommandByGuild("/giverep ⁺ transfer", guildID);
   const response = await getOrgId(guildID);
   const orgID = response.sources[0].organization_id;
+  const sourceID = response.sources[0].id;
 
   if (fromUser.id === toUserId)
     return {
@@ -113,13 +118,6 @@ const handleGiverepCommand = async (payload) => {
   if (!negativeTopUpResp.error) {
     const positiveTopUpResp = await topUp(orgID, toUserId, amount, 1);
     if (!negativeTopUpResp.error) {
-      console.log("fromUser.id");
-      console.log("fromUser.id");
-      console.log("fromUser.id");
-      console.log("fromUser.id");
-
-      console.log(fromUser.id);
-      console.log(fromUser.username);
       const fromIdentity = await getIdentityByID(
         1,
         fromUser.id,
@@ -127,8 +125,8 @@ const handleGiverepCommand = async (payload) => {
       );
       await reportRepTransfer(
         orgID,
-        1,
-        1,
+        actionID,
+        sourceID,
         fromIdentity,
         toUserName,
         amount,
