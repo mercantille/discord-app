@@ -70,7 +70,6 @@ const handlePayCommand = async (payload) => {
   console.log("Retrieving recipient data");
   const toUser = await getUserById(toUserId);
   console.log("To user: %s", JSON.stringify(toUser));
-  console.log("UserID: %s", JSON.stringify(toUserId));
 
   await reportPayment(fromUser, toUser, amount, reason, guildID);
 
