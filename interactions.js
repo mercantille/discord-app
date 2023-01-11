@@ -98,9 +98,22 @@ const handleGiverepCommand = async (payload) => {
   console.log("Retrieving recipient data");
   const toUser = await getUserById(toUserId);
   const actionID = await queryCommandByGuild("/giverep ⁺ transfer", guildID);
+
+  console.log("ACTION ID");
+  console.log("ACTION ID");
+  console.log("ACTION ID");
+  console.log("ACTION ID");
+  console.log(actionID);
+
   const response = await getOrgId(guildID);
   const orgID = response.sources[0].organization_id;
   const sourceID = response.sources[0].id;
+  console.log("SOURCE ID");
+  console.log("SOURCE ID");
+  console.log("SOURCE ID");
+  console.log("SOURCE ID");
+  console.log("SOURCE ID");
+  console.log(sourceID);
 
   if (fromUser.id === toUserId)
     return {
