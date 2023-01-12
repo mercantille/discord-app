@@ -11,6 +11,7 @@ import {
   GIVEREP_COMMAND,
   UpdateGuildCommand,
   CREATE_COMMAND,
+  CHECKREP_COMMAND,
 } from "./commands/commands-def.js";
 import {
   handleApplicationCommand,
@@ -70,11 +71,9 @@ app.listen(PORT, () => {
 
   // Check if guild commands from commands.json are installed (if not, install them)
   HasGuildCommands(process.env.APP_ID, undefined, [
-    TEST_COMMAND,
-    PAY_COMMAND,
-    CHALLENGE_COMMAND,
     GIVEREP_COMMAND,
     CREATE_COMMAND,
+    CHECKREP_COMMAND,
   ]);
   UpdateGuildCommand(process.env.APP_ID, undefined, PAY_COMMAND);
   UpdateGuildCommand(process.env.APP_ID, undefined, CREATE_COMMAND);
