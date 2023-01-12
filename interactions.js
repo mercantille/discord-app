@@ -175,7 +175,7 @@ const handleCheckrepCommand = async (payload) => {
   console.log("CHECKREP IS BEING USED");
   const wallets = await getWalletsByID(orgID, fromIdentity);
   console.log(wallets);
-  if (!wallets) {
+  if (wallets) {
     let amount = wallets[0].amount;
     console.log(amount);
     return {
