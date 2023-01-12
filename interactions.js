@@ -96,7 +96,7 @@ const handleGiverepCommand = async (payload) => {
 
   console.log("Retrieving recipient data");
   const toUser = await getUserById(toUserId);
-  const command = await queryCommandByGuild("/giverep ⁺ transfer", guildID);
+  const command = await queryCommandByGuild("giverep ⁺ transfer", guildID);
   const actionID = command.id;
 
   const response = await getOrgId(guildID);
