@@ -163,12 +163,8 @@ const handleGiverepCommand = async (payload) => {
 
 const handleCheckrepCommand = async (payload) => {
   const fromUser = payload.member.user;
-
   const guildID = payload.guild_id;
-
   console.log("Retrieving recipient data");
-  const command = await queryCommandByGuild("checkrep", guildID);
-  const actionID = command.id;
   const fromIdentity = await getIdentityByID(1, fromUser.id, fromUser.username);
   const response = await getOrgId(guildID);
   const orgID = response.sources[0].organization_id;
