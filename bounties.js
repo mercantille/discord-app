@@ -42,6 +42,28 @@ export const reportPayment = async (
   await storeActionInTheFeed(payload);
 };
 
+export async function getWalletsByID(orgID, identityID) {
+  const payload = {
+    organization_ids: [orgID],
+    identity_ids: [identityID],
+  };
+  const endpoint = "https://api.mercantille.xyz/api/v1/wallets/query";
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      "User-Agent":
+        "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
+      Authorization: `Bearer ${process.env.BACKEND_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    console.error("Received error from server: %d", resp.status);
+  } else return data.wallets;
+}
+
 export const getOrgId = async (guildID) => {
   // console.log(guildID);
   const payload = {

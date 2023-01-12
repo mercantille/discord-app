@@ -6,6 +6,7 @@ import {
   getOrgId,
   topUp,
   getIdentityByID,
+  getWalletsByID,
 } from "./bounties.js";
 import { HasGuildCommands } from "./commands/commands-def.js";
 import {
@@ -166,9 +167,22 @@ const handleCheckrepCommand = async (payload) => {
   const guildID = payload.guild_id;
 
   console.log("Retrieving recipient data");
-
-  const orgIDResponse = await getOrgId(guildID);
-  const orgID = orgIDResponse.sources[0].organization_id;
+  const command = await queryCommandByGuild("checkrep", guildID);
+  const actionID = command.id;
+  const fromIdentity = await getIdentityByID(1, fromUser.id, fromUser.username);
+  const response = await getOrgId(guildID);
+  const orgID = response.sources[0].organization_id;
+  const sourceID = response.sources[0].id;
+  const wallets = await getWalletsByID(orgID, fromIdentity);
+  if (!wallets) {
+    let amount = wallets[0].amount;
+    return {
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: `🫶🏼 <@${fromUser.id}> has ${amount}ᐩ in their wallet!`,
+      },
+    };
+  }
 };
 
 // await reportRepTransfer(fromUser, toUser, amount, reason);
