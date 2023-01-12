@@ -168,7 +168,11 @@ const handleCheckrepCommand = async (payload) => {
   const fromIdentity = await getIdentityByID(1, fromUser.id, fromUser.username);
   const response = await getOrgId(guildID);
   const orgID = response.sources[0].organization_id;
-  const sourceID = response.sources[0].id;
+  console.log("CHECKREP IS BEING USED");
+  console.log("CHECKREP IS BEING USED");
+  console.log("CHECKREP IS BEING USED");
+
+  console.log("CHECKREP IS BEING USED");
   const wallets = await getWalletsByID(orgID, fromIdentity);
   if (!wallets) {
     let amount = wallets[0].amount;
