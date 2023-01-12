@@ -184,7 +184,7 @@ export const GIVEREP_COMMAND = {
 export const CHECKREP_COMMAND = {
   name: "checkrep",
   description:
-    "check how much reputation you curently have and your reputation level on this server",
+    "check how much reputation you currently have and your reputation level on this server",
   type: 1,
 };
 
