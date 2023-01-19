@@ -4,10 +4,7 @@ import express from "express";
 import { InteractionType, InteractionResponseType } from "discord-interactions";
 import { VerifyDiscordRequest } from "./utils.js";
 import {
-  CHALLENGE_COMMAND,
-  TEST_COMMAND,
   HasGuildCommands,
-  PAY_COMMAND,
   GIVEREP_COMMAND,
   UpdateGuildCommand,
   CREATE_COMMAND,
@@ -75,7 +72,6 @@ app.listen(PORT, () => {
     CREATE_COMMAND,
     CHECKREP_COMMAND,
   ]);
-  UpdateGuildCommand(process.env.APP_ID, undefined, PAY_COMMAND);
   UpdateGuildCommand(process.env.APP_ID, undefined, CREATE_COMMAND);
 });
 
@@ -249,11 +245,6 @@ async function getGuilds() {
 
 async function handleMessageHistory() {
   const sources = await getDiscordServers();
-  console.log("sources");
-  console.log("sources");
-  console.log("sources");
-  console.log("sources");
-  console.log("sources");
 
   for (const source of sources) {
     const actionID = await getActionIDForNewMessage(source.id);

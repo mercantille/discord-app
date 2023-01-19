@@ -123,37 +123,6 @@ function createCommandChoices() {
 }
 
 // Simple test command
-export const TEST_COMMAND = {
-  name: "test",
-  description: "Basic guild command",
-  type: 1,
-};
-
-export const PAY_COMMAND = {
-  name: "pay",
-  description: "Pay someone for a job",
-  options: [
-    {
-      type: 9,
-      name: "touser",
-      description: "User receiving the payment",
-      required: true,
-    },
-    {
-      type: 10,
-      name: "amount",
-      description: "Amount of payment",
-      required: true,
-    },
-    {
-      type: 3,
-      name: "for",
-      description: "Reason for payment",
-      required: false,
-    },
-  ],
-  type: 1,
-};
 
 export const GIVEREP_COMMAND = {
   name: "giverep",
@@ -271,17 +240,17 @@ export const CREATE_COMMAND = {
 };
 
 // Command containing options
-export const CHALLENGE_COMMAND = {
-  name: "challenge",
-  description: "Challenge to a match of rock paper scissors",
-  options: [
-    {
-      type: 3,
-      name: "object",
-      description: "Pick your object",
-      required: true,
-      choices: createCommandChoices(),
-    },
-  ],
-  type: 1,
-};
+// export const CHALLENGE_COMMAND = {
+//   name: "challenge",
+//   description: "Challenge to a match of rock paper scissors",
+//   options: [
+//     {
+//       type: 3,
+//       name: "object",
+//       description: "Pick your object",
+//       required: true,
+//       choices: createCommandChoices(),
+//     },
+//   ],
+//   type: 1,
+// };

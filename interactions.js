@@ -26,10 +26,6 @@ export const handleApplicationCommand = async (name, payload) => {
     return handleTestCommand(payload);
   }
 
-  if (name === "pay") {
-    return await handlePayCommand(payload);
-  }
-
   if (name === "giverep") {
     return await handleGiverepCommand(payload);
   }
@@ -168,11 +164,6 @@ const handleCheckrepCommand = async (payload) => {
   const fromIdentity = await getIdentityByID(1, fromUser.id, fromUser.username);
   const response = await getOrgId(guildID);
   const orgID = response.sources[0].organization_id;
-  console.log("CHECKREP IS BEING USED");
-  console.log("CHECKREP IS BEING USED");
-  console.log("CHECKREP IS BEING USED");
-
-  console.log("CHECKREP IS BEING USED");
   const wallets = await getWalletsByID(orgID, fromIdentity);
   console.log(wallets);
   if (wallets) {
