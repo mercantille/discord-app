@@ -147,7 +147,10 @@ async function getMessagesPerChannel(channel, lastMessage) {
   // new URLSearchParams({ limit: 10 })
 
   const data = await response.json();
-  // console.log(await data);
+  console.log("data)";
+  console.log("data)";
+  console.log("data)";
+  console.log(data);
   return await data;
 }
 
@@ -268,10 +271,9 @@ async function handleMessageHistory() {
         console.log("reverseMessages");
         console.log("reverseMessages");
         console.log(
-          reversedMessages === "undefined" ||
+          reversedMessages === undefined ||
             typeof reversedMessages === "undefined"
         );
-        console.log(reverseMessages);
         if (
           reversedMessages &&
           reversedMessages !== undefined &&
