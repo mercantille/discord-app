@@ -147,9 +147,9 @@ async function getMessagesPerChannel(channel, lastMessage) {
   // new URLSearchParams({ limit: 10 })
 
   const data = await response.json();
-  console.log("data)";
-  console.log("data)";
-  console.log("data)";
+  console.log("data");
+  console.log("data)");
+  console.log("data)");
   console.log(data);
   return await data;
 }
