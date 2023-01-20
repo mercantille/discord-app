@@ -262,49 +262,57 @@ async function handleMessageHistory() {
           channel.id.toString(),
           lastStoredMessage.toString()
         );
-        const messages = reversedMessages.reverse();
-        // console.log(messages);
-        if (
-          messages != [] &&
-          messages != undefined &&
-          messages &&
-          messages.length > 0 &&
-          messages.code != 0
-        ) {
-          for (const message of messages) {
-            if (
-              message.id != lastStoredMessage &&
-              message.author.id !== "1029707900626669607" &&
-              message.author.id !== "976429060752298044"
-            ) {
-              console.log(channel.id);
-              console.log("IM HANDLING THE NEW MESSAGE!");
-              console.log("Last handled");
-              console.log(lastStoredMessage);
+        console.log("reverseMessages");
+        console.log("reverseMessages");
+        console.log("reverseMessages");
+        console.log("reverseMessages");
+        console.log("reverseMessages");
+        console.log(reverseMessages);
+        if (reversedMessages) {
+          const messages = reversedMessages.reverse();
+          // console.log(messages);
+          if (
+            messages != [] &&
+            messages != undefined &&
+            messages &&
+            messages.length > 0 &&
+            messages.code != 0
+          ) {
+            for (const message of messages) {
+              if (
+                message.id != lastStoredMessage &&
+                message.author.id !== "1029707900626669607" &&
+                message.author.id !== "976429060752298044"
+              ) {
+                console.log(channel.id);
+                console.log("IM HANDLING THE NEW MESSAGE!");
+                console.log("Last handled");
+                console.log(lastStoredMessage);
 
-              const senderIdentityId = await getIdentityByID(
-                1,
-                message.author.id,
-                message.author.username
-              );
-              console.log(source.organization_id);
-              console.log(source.id);
-              console.log(senderIdentityId);
-              let context =
-                "sent a new message in the channel #" + channel.name;
-              const reportMessageResp = await reportMessage(
-                source.organization_id,
-                actionID,
-                source.id,
-                senderIdentityId,
-                context
-              );
-              console.log(reportMessageResp);
-              await setLastStoredMessage(
-                source.id,
-                channel.id.toString(),
-                message.id
-              );
+                const senderIdentityId = await getIdentityByID(
+                  1,
+                  message.author.id,
+                  message.author.username
+                );
+                console.log(source.organization_id);
+                console.log(source.id);
+                console.log(senderIdentityId);
+                let context =
+                  "sent a new message in the channel #" + channel.name;
+                const reportMessageResp = await reportMessage(
+                  source.organization_id,
+                  actionID,
+                  source.id,
+                  senderIdentityId,
+                  context
+                );
+                console.log(reportMessageResp);
+                await setLastStoredMessage(
+                  source.id,
+                  channel.id.toString(),
+                  message.id
+                );
+              }
             }
           }
         }
