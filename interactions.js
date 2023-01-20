@@ -166,7 +166,7 @@ const handleCheckrepCommand = async (payload) => {
   const orgID = response.sources[0].organization_id;
   const wallets = await getWalletsByID(orgID, fromIdentity);
   console.log(wallets);
-  if (wallets) {
+  if (wallets && wallets !== null) {
     let amount = wallets[0].amount;
     console.log(amount);
     return {
@@ -175,7 +175,13 @@ const handleCheckrepCommand = async (payload) => {
         content: `🫶🏼 <@${fromUser.id}> has ${amount}ᐩ in their wallet!`,
       },
     };
-  }
+  } else
+    return {
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: `<@${fromUser.id}> don't have a wallet yet, they should do some activity in this server to be rewarded first :moneybag:`,
+      },
+    };
 };
 
 // await reportRepTransfer(fromUser, toUser, amount, reason);
