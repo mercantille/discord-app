@@ -267,9 +267,16 @@ async function handleMessageHistory() {
         console.log("reverseMessages");
         console.log("reverseMessages");
         console.log("reverseMessages");
-        console.log(reversedMessages === "undefined");
+        console.log(
+          reversedMessages === "undefined" ||
+            typeof reversedMessages === "undefined"
+        );
         console.log(reverseMessages);
-        if (reversedMessages && reversedMessages != "undefined") {
+        if (
+          reversedMessages &&
+          reversedMessages !== undefined &&
+          typeof reversedMessages !== "undefined"
+        ) {
           const messages = reversedMessages.reverse();
           // console.log(messages);
           if (
