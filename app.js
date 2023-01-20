@@ -145,13 +145,12 @@ async function getMessagesPerChannel(channel, lastMessage) {
   }
 
   // new URLSearchParams({ limit: 10 })
-
+  if (!response.ok) {
+    console.error("Received error from server: %d", response.status);
+    return null;
+  }
   const data = await response.json();
-  console.log("data");
-  console.log("data)");
-  console.log("data)");
-  console.log(data);
-  return await data;
+  return data;
 }
 
 async function getLastStoredMessage(source, channel) {
