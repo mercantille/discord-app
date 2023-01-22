@@ -31,35 +31,37 @@ app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
  * Interactions endpoint URL where Discord will send HTTP requests
  */
 app.post("/interactions", async function (req, res) {
-  // Interaction type and data
-  console.log(req.body);
-  const { type, id, data } = req.body;
+  try {
+    console.debug('Interaction start')
+    console.debug(req.body);
 
-  /**
-   * Handle verification requests
-   */
-  if (type === InteractionType.PING) {
-    return res.send({ type: InteractionResponseType.PONG });
-  }
+    const { type, id, data } = req.body;
 
-  /**
-   * Handle slash command requests
-   * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
-   */
-  if (type === InteractionType.APPLICATION_COMMAND) {
-    const { name } = data;
+    /**
+     * Handle verification requests
+     */
+    if (type === InteractionType.PING) {
+      return res.send({ type: InteractionResponseType.PONG });
+    }
 
-    try {
+    /**
+     * Handle slash command requests
+     * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
+     */
+    if (type === InteractionType.APPLICATION_COMMAND) {
+      const { name } = data;
+
       const responsePayload = await handleApplicationCommand(name, req.body);
       if (responsePayload) {
         return res.send(responsePayload);
       }
-    } catch (error) {
-      console.error(error);
-      return res.status(500).send();
+      return res.status(400).send();
     }
-
-    return res.status(400).send();
+  } catch (error) {
+    console.error('Error executing /interactions endpoint', error);
+    return res.status(500).send();
+  } finally {
+    console.debug('Interaction finished')
   }
 });
 
@@ -73,6 +75,8 @@ app.listen(PORT, () => {
     CHECKREP_COMMAND,
   ]);
   UpdateGuildCommand(process.env.APP_ID, undefined, CREATE_COMMAND);
+
+  console.log('Commands registered, ready to serve')
 });
 
 async function getDiscordServers() {
@@ -118,8 +122,6 @@ async function getChannelsPerServer(server) {
 async function getMessagesPerChannel(channel, lastMessage) {
   let response = null;
   if (lastMessage && lastMessage !== undefined) {
-    // console.log(lastMessage);
-    // console.log("showing since last");
     response = await fetch(
       `https://discord.com/api/v10/channels/${channel}/messages?after=${lastMessage}`,
       {
@@ -131,7 +133,6 @@ async function getMessagesPerChannel(channel, lastMessage) {
       }
     );
   } else {
-    console.log("bypassing the variable");
     response = await fetch(
       `https://discord.com/api/v10/channels/${channel}/messages`,
       {
@@ -241,7 +242,6 @@ async function getGuilds() {
     // new URLSearchParams({ limit: 10 })
   );
   const data = await response.json();
-  // console.log(data);
   return data;
 }
 
@@ -264,22 +264,13 @@ async function handleMessageHistory() {
           channel.id.toString(),
           lastStoredMessage.toString()
         );
-        console.log("reverseMessages");
-        console.log("reverseMessages");
-        console.log("reverseMessages");
-        console.log("reverseMessages");
-        console.log("reverseMessages");
-        console.log(
-          reversedMessages === undefined ||
-            typeof reversedMessages === "undefined"
-        );
         if (
           reversedMessages &&
           reversedMessages !== undefined &&
           typeof reversedMessages !== "undefined"
         ) {
           const messages = reversedMessages.reverse();
-          // console.log(messages);
+
           if (
             messages != [] &&
             messages != undefined &&
@@ -287,25 +278,21 @@ async function handleMessageHistory() {
             messages.length > 0 &&
             messages.code != 0
           ) {
+            console.debug('Handling %d messages from channel %s', messages.length, channel.id.toString())
+            
             for (const message of messages) {
+              // some dark magic here, looks like permanent users ban
               if (
                 message.id != lastStoredMessage &&
                 message.author.id !== "1029707900626669607" &&
                 message.author.id !== "976429060752298044"
               ) {
-                console.log(channel.id);
-                console.log("IM HANDLING THE NEW MESSAGE!");
-                console.log("Last handled");
-                console.log(lastStoredMessage);
-
                 const senderIdentityId = await getIdentityByID(
                   1,
                   message.author.id,
                   message.author.username
                 );
-                console.log(source.organization_id);
-                console.log(source.id);
-                console.log(senderIdentityId);
+
                 let context =
                   "sent a new message in the channel #" + channel.name;
                 const reportMessageResp = await reportMessage(
@@ -315,7 +302,7 @@ async function handleMessageHistory() {
                   senderIdentityId,
                   context
                 );
-                console.log(reportMessageResp);
+
                 await setLastStoredMessage(
                   source.id,
                   channel.id.toString(),
@@ -336,12 +323,17 @@ const timeoutObj = setInterval(async () => {
   // @mikethepurple - here you can trigger any logic for occasional polling for new messages, reactions, whatever
   if (!isRunning) {
     isRunning = true;
-    await handleMessageHistory();
+    try {
+      await handleMessageHistory();
+    } catch (err) {
+      console.error('Error while fetching message history', err)
+      // let it retry silently
+    }
   }
   isRunning = false;
 }, intervalMs);
 
 app.once("close", () => {
-  console.log("Closing!");
+  console.log("Closing app!");
   clearInterval(timeoutObj);
 });
