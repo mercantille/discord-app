@@ -64,9 +64,7 @@ const handlePayCommand = async (payload) => {
   }
   const reason = context ? context : "no reason";
 
-  console.log("Retrieving recipient data");
   const toUser = await getUserById(toUserId);
-  console.log("To user: %s", JSON.stringify(toUser));
 
   await reportPayment(fromUser, toUser, amount, reason, guildID);
 
@@ -91,7 +89,6 @@ const handleGiverepCommand = async (payload) => {
   }
   const reason = context ? context : "no reason";
 
-  console.log("Retrieving recipient data");
   const toUser = await getUserById(toUserId);
   const command = await queryCommandByGuild("giverep ⁺ transfer", guildID);
   const actionID = command.id;
@@ -160,15 +157,15 @@ const handleGiverepCommand = async (payload) => {
 const handleCheckrepCommand = async (payload) => {
   const fromUser = payload.member.user;
   const guildID = payload.guild_id;
-  console.log("Retrieving recipient data");
+
   const fromIdentity = await getIdentityByID(1, fromUser.id, fromUser.username);
   const response = await getOrgId(guildID);
   const orgID = response.sources[0].organization_id;
   const wallets = await getWalletsByID(orgID, fromIdentity);
-  console.log(wallets);
+
   if (wallets && wallets !== null) {
     let amount = wallets[0].amount;
-    console.log(amount);
+
     return {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
@@ -239,11 +236,6 @@ const handleCreateCommandCommand = async (payload) => {
       // console.log(storeCmdResp.id);
 
       if (rewardOption === "fixed") {
-        console.log("I'm trying to create a reward");
-        console.log("I'm trying to create a reward");
-        console.log("I'm trying to create a reward");
-        console.log("I'm trying to create a reward");
-        console.log(storeCmdResp);
         const createRewardResp = await createReward(storeCmdResp.id, 1, 10);
         if (!createRewardResp) {
           console.error("Failed to store command action, aborting");
@@ -290,7 +282,7 @@ export const getActionIDForNewMessage = async (sourceID) => {
     types: ["NewMessage"],
     name: "New message",
   };
-  console.log(payload);
+
   const endpoint = "https://api.mercantille.xyz/api/v1/action/query";
   const response = await fetch(endpoint, {
     method: "POST",

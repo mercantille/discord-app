@@ -109,8 +109,6 @@ export const storeCommand = async (
   rewardType
 ) => {
   const sources = await getOrgId(guildId);
-  console.log("Found sources for guild:");
-  console.log(sources);
 
   if (!sources || !sources.sources || sources.sources.length === 0) {
     console.error(`Sources not found for guildId ${guildId}`);
@@ -128,9 +126,6 @@ export const storeCommand = async (
     users_targeted: subjects === "multiple" ? 2 : subjects === "single" ? 1 : 0, // weirdly, backend accepts int type for this
     custom_rewards: rewardOption === "dynamic",
   };
-
-  console.log("Payload constructed");
-  console.log(payload);
 
   const endpoint = "https://api.mercantille.xyz/api/v1/action/create";
   const response = await fetch(endpoint, {
@@ -160,7 +155,6 @@ export const createReward = async (actionID, currencyID, rewardValue) => {
     currency_id: currencyID,
     reward_value: rewardValue,
   };
-  console.log(payload);
   const endpoint = "https://api.mercantille.xyz/api/v1/action-reward/create";
   const response = await fetch(endpoint, {
     method: "POST",
