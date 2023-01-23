@@ -159,6 +159,13 @@ const doExecuteCommand = async (commandDef, payload) => {
   ) {
     if (commandDef.rewardType === "transactable") {
       console.log(subjects);
+      if (monetaryAmount.amount < 0)
+        return {
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `Stealing is not nice, <@${fromUser.id}>! 👀`,
+          },
+        };
       for (const subject of subjects) {
         const negativeTopUpResp = await topUp(
           orgID,

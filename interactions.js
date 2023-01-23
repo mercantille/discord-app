@@ -107,6 +107,13 @@ const handleGiverepCommand = async (payload) => {
         content: `You can't send reputation to yourself, <@${fromUser.id}>!`,
       },
     };
+  if (amount < 0)
+    return {
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: `Stealing is not nice, <@${fromUser.id}>! 👀`,
+      },
+    };
   const negativeTopUpResp = await topUp(orgID, fromUser.id, -amount, 1);
   // const positiveTopUpResp = await topUp(orgID, toUserId, amount, 1);
 
