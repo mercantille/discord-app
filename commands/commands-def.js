@@ -87,7 +87,7 @@ export async function UpdateGuildCommand(appId, guildId, command) {
   }
 
   if (!commandId) {
-    console.log(`command ${command["name"]} not found on the server`);
+    console.error(`command ${command["name"]} not found on the server`);
     return;
   }
 
@@ -103,7 +103,7 @@ export async function UpdateGuildCommand(appId, guildId, command) {
     console.log(`Updating "${command["name"]}"`);
     await DiscordRequest(updateEndpoint, { method: "PATCH", body: command });
   } catch (err) {
-    console.error(err);
+    console.error('Failed to update command %s: %s', command["name"], err.toString());
   }
 }
 

@@ -13,14 +13,12 @@ import {
 } from "../bounties.js";
 
 export const executeCustomCommand = async (name, payload) => {
-  console.log(`Searching for command definition ${name}`);
+  console.debug(`Searching for command definition ${name}`);
   const commandDef = await findCustomCommand(name, payload.guild_id);
-
-  console.log(commandDef);
 
   if (commandDef) {
     const commandResp = await doExecuteCommand(commandDef, payload);
-    console.log(commandResp);
+
     return {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
@@ -41,9 +39,6 @@ const findCustomCommand = async (name, guildId) => {
     return;
   }
 
-  console.log("Command settings");
-  console.log(commandSettings);
-  console.log("Finished settings");
   return {
     id: commandSettings.id,
     name: commandSettings.name,
@@ -62,8 +57,6 @@ const findCustomCommand = async (name, guildId) => {
 
 export const queryCommandByGuild = async (name, guildId) => {
   const sources = await getOrgId(guildId);
-  console.log("Found sources for guild:");
-  console.log(sources);
 
   if (!sources || !sources.sources || sources.sources.length === 0) {
     console.error(`Sources not found for guildId ${guildId}`);
@@ -76,9 +69,6 @@ export const queryCommandByGuild = async (name, guildId) => {
     types: ["Command"],
     names: [name],
   };
-
-  console.log("Prepared payload:");
-  console.log(payload);
 
   const endpoint = "https://api.mercantille.xyz/api/v1/action/query";
   const response = await fetch(endpoint, {
@@ -99,15 +89,11 @@ export const queryCommandByGuild = async (name, guildId) => {
   }
 
   const commands = await response.json();
-  console.log("Received response:");
-  console.log(commands);
 
   if (commands.actions.length === 0) {
     console.error(`No commands found for name ${name} and guild ${guildId}`);
     return;
   }
-
-  console.log(commands.actions[0]);
 
   return commands.actions[0];
 };
@@ -125,10 +111,6 @@ const doExecuteCommand = async (commandDef, payload) => {
   );
 
   const options = payload.data.options;
-  let uniqueName;
-  // if (commandDef.uniqueEvents) {
-  //   uniqueName = options.shift().value;
-  // }
 
   let monetaryAmount;
   if (
@@ -158,7 +140,6 @@ const doExecuteCommand = async (commandDef, payload) => {
     commandDef.rewardOption !== "fixed"
   ) {
     if (commandDef.rewardType === "transactable") {
-      console.log(subjects);
       if (monetaryAmount.amount < 0)
         return {
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -166,6 +147,7 @@ const doExecuteCommand = async (commandDef, payload) => {
             content: `Stealing is not nice, <@${fromUser.id}>! 👀`,
           },
         };
+      
       for (const subject of subjects) {
         const negativeTopUpResp = await topUp(
           orgID,
@@ -173,7 +155,7 @@ const doExecuteCommand = async (commandDef, payload) => {
           -monetaryAmount.amount,
           1
         );
-        console.log(negativeTopUpResp);
+
         if (!negativeTopUpResp.error) {
           const positiveTopUpResp = await topUp(
             orgID,
@@ -181,6 +163,7 @@ const doExecuteCommand = async (commandDef, payload) => {
             monetaryAmount.amount,
             1
           );
+
           if (positiveTopUpResp.error) {
             await topUp(orgID, fromUserId, monetaryAmount.amount, 1);
             return {
@@ -201,6 +184,7 @@ const doExecuteCommand = async (commandDef, payload) => {
           };
         }
         const toUserName = payload.data.resolved.users[subject.value].username;
+
         await reportRepTransfer(
           orgID,
           commandDef.id,
@@ -226,18 +210,9 @@ const doExecuteCommand = async (commandDef, payload) => {
       }
     } else {
       const permissions = payload.member.permissions;
-      console.log(permissions);
-      const bigPermissions = BigInt(permissions);
 
       const isAdmin = !((permissions & (1 << 3)) === 0);
 
-      console.log("fromUser");
-      console.log("fromUser");
-      console.log("fromUser");
-      console.log("fromUser");
-
-      console.log(isAdmin);
-      console.log(" END OF fromUser");
       if (isAdmin === true) {
         for (const subject of subjects) {
           const positiveTopUpResp = await topUp(
