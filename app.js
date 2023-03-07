@@ -32,7 +32,7 @@ app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
  */
 app.post("/interactions", async function (req, res) {
   try {
-    console.debug('Interaction start')
+    console.debug("Interaction start");
     console.debug(req.body);
 
     const { type, id, data } = req.body;
@@ -58,10 +58,10 @@ app.post("/interactions", async function (req, res) {
       return res.status(400).send();
     }
   } catch (error) {
-    console.error('Error executing /interactions endpoint', error);
+    console.error("Error executing /interactions endpoint", error);
     return res.status(500).send();
   } finally {
-    console.debug('Interaction finished')
+    console.debug("Interaction finished");
   }
 });
 
@@ -76,7 +76,7 @@ app.listen(PORT, () => {
   ]);
   UpdateGuildCommand(process.env.APP_ID, undefined, CREATE_COMMAND);
 
-  console.log('Commands registered, ready to serve')
+  console.log("Commands registered, ready to serve");
 });
 
 async function getDiscordServers() {
@@ -253,67 +253,72 @@ async function handleMessageHistory() {
     const serverChannels = await getChannelsPerServer(
       source.external_key.toString()
     );
-    for (const channel of serverChannels) {
-      if (channel.last_message_id) {
-        const lastStoredMessage = await getLastStoredMessage(
-          source.id,
-          channel.id.toString()
-        );
+    if (!serverChannels.message)
+      for (const channel of serverChannels) {
+        if (channel.last_message_id) {
+          const lastStoredMessage = await getLastStoredMessage(
+            source.id,
+            channel.id.toString()
+          );
 
-        const reversedMessages = await getMessagesPerChannel(
-          channel.id.toString(),
-          lastStoredMessage.toString()
-        );
-        if (
-          reversedMessages &&
-          reversedMessages !== undefined &&
-          typeof reversedMessages !== "undefined"
-        ) {
-          const messages = reversedMessages.reverse();
-
+          const reversedMessages = await getMessagesPerChannel(
+            channel.id.toString(),
+            lastStoredMessage.toString()
+          );
           if (
-            messages != [] &&
-            messages != undefined &&
-            messages &&
-            messages.length > 0 &&
-            messages.code != 0
+            reversedMessages &&
+            reversedMessages !== undefined &&
+            typeof reversedMessages !== "undefined"
           ) {
-            console.debug('Handling %d messages from channel %s', messages.length, channel.id.toString())
-            
-            for (const message of messages) {
-              // some dark magic here, looks like permanent users ban
-              if (
-                message.id != lastStoredMessage &&
-                message.author.id !== "1029707900626669607" &&
-                message.author.id !== "976429060752298044"
-              ) {
-                const senderIdentityId = await getIdentityByID(
-                  source.id,
-                  message.author.id,
-                  message.author.username
-                );
+            const messages = reversedMessages.reverse();
 
-                let context =
-                  "sent a new message in the channel #" + channel.name;
-                const reportMessageResp = await reportMessage(
-                  source.organization_id,
-                  actionID,
-                  source.id,
-                  senderIdentityId,
-                  context
-                );
+            if (
+              messages != [] &&
+              messages != undefined &&
+              messages &&
+              messages.length > 0 &&
+              messages.code != 0
+            ) {
+              console.debug(
+                "Handling %d messages from channel %s",
+                messages.length,
+                channel.id.toString()
+              );
 
-                await setLastStoredMessage(
-                  source.id,
-                  channel.id.toString(),
-                  message.id
-                );
+              for (const message of messages) {
+                // some dark magic here, looks like permanent users ban
+                if (
+                  message.id != lastStoredMessage &&
+                  message.author.id !== "1029707900626669607" &&
+                  message.author.id !== "976429060752298044"
+                ) {
+                  const senderIdentityId = await getIdentityByID(
+                    source.id,
+                    message.author.id,
+                    message.author.username
+                  );
+
+                  let context =
+                    "sent a new message in the channel #" + channel.name;
+                  const reportMessageResp = await reportMessage(
+                    source.organization_id,
+                    actionID,
+                    source.id,
+                    senderIdentityId,
+                    context
+                  );
+
+                  await setLastStoredMessage(
+                    source.id,
+                    channel.id.toString(),
+                    message.id
+                  );
+                }
               }
             }
           }
         }
       }
-    }
   }
 }
 
@@ -326,7 +331,7 @@ const timeoutObj = setInterval(async () => {
     try {
       await handleMessageHistory();
     } catch (err) {
-      console.error('Error while fetching message history', err)
+      console.error("Error while fetching message history", err);
       // let it retry silently
     }
   }
