@@ -90,13 +90,9 @@ export const getOrgId = async (guildID) => {
 export const getIdentityByID = async (sourceID, userID, username) => {
   // console.log(username)
   const payload = {
-    identities: [
-      {
-        source_id: sourceID,
-        external_id: userID,
-        external_name: username.toString(),
-      },
-    ],
+    source_id: sourceID,
+    external_id: userID,
+    external_name: username.toString(),
   };
   // console.log(payload);
   // const stringified = JSON.stringify(payload);
