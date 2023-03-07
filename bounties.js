@@ -87,12 +87,12 @@ export const getOrgId = async (guildID) => {
   return data;
 };
 
-export const getIdentityByID = async (originID, userID, username) => {
+export const getIdentityByID = async (sourceID, userID, username) => {
   // console.log(username)
   const payload = {
     identities: [
       {
-        origin_id: originID,
+        source_id: sourceID,
         external_id: userID,
         external_name: username.toString(),
       },
@@ -102,7 +102,7 @@ export const getIdentityByID = async (originID, userID, username) => {
   // const stringified = JSON.stringify(payload);
   // console.log(stringified);
   const endpoint =
-    "https://api.mercantille.xyz/api/v1/user-identity/get-or-create";
+    "https://api.mercantille.xyz/api/v1/user-identity/upsert";
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
@@ -119,7 +119,7 @@ export const getIdentityByID = async (originID, userID, username) => {
     console.error("Received error from server: %d", response.status);
   }
   // console.log(data.identities)
-  return data.identities[0].id;
+  return data.id;
 };
 
 export const topUp = async (orgID, toUserID, amount, currencyID) => {

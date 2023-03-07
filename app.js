@@ -288,7 +288,7 @@ async function handleMessageHistory() {
                 message.author.id !== "976429060752298044"
               ) {
                 const senderIdentityId = await getIdentityByID(
-                  1,
+                  source.id,
                   message.author.id,
                   message.author.username
                 );

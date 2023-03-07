@@ -118,7 +118,7 @@ const handleGiverepCommand = async (payload) => {
     const positiveTopUpResp = await topUp(orgID, toUserId, amount, 1);
     if (!negativeTopUpResp.error) {
       const fromIdentity = await getIdentityByID(
-        1,
+        sourceID,
         fromUser.id,
         fromUser.username
       );
@@ -165,9 +165,10 @@ const handleCheckrepCommand = async (payload) => {
   const fromUser = payload.member.user;
   const guildID = payload.guild_id;
 
-  const fromIdentity = await getIdentityByID(1, fromUser.id, fromUser.username);
   const response = await getOrgId(guildID);
+  const sourceID = response.sources[0].id;
   const orgID = response.sources[0].organization_id;
+  const fromIdentity = await getIdentityByID(sourceID, fromUser.id, fromUser.username);
   const wallets = await getWalletsByID(orgID, fromIdentity);
 
   if (wallets && wallets !== null) {

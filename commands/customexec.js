@@ -105,7 +105,7 @@ const doExecuteCommand = async (commandDef, payload) => {
   const sourceID = sources.sources[0].id;
   const orgID = sources.sources[0].organization_id;
   const fromUserIdentity = await getIdentityByID(
-    1,
+    sourceID,
     fromUserId,
     fromUser.username
   );
